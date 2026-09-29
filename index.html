@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#5a1f1b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Salmo">
+<meta name="apple-mobile-web-app-title" content="Celebración">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -284,7 +284,7 @@
     <div class="panel">
       <h3 style="margin-top:0">Guardar y recuperar el historial</h3>
       <p>Con tu cuenta, los datos se guardan en la nube y se sincronizan solos entre tus aparatos. Aun así, <strong>descarga una copia de vez en cuando</strong>
-        (por ejemplo, después de cada Salmo). Con “Cargar copia” recuperas una copia descargada; si has entrado con tu cuenta, también se sube a la nube.</p>
+        (por ejemplo, después de cada Celebración). Con “Cargar copia” recuperas una copia descargada; si has entrado con tu cuenta, también se sube a la nube.</p>
       <div class="row">
         <button class="btn primary" id="btnExportar">⬇️ Descargar copia (.json)</button>
         <label class="btn">⬆️ Cargar copia<input type="file" id="fileImport" accept=".json,application/json" hidden></label>
@@ -565,9 +565,9 @@
     }
     if (!propuesta) {
       cont.innerHTML = estado.rondas.length
-        ? `<p class="muted">Pulsa “Generar grupos” para crear la propuesta del próximo Salmo.</p>`
-        : `<p class="muted">Todavía no hay historial. Pulsa “Generar grupos” para el primer Salmo (será al azar, porque aún nadie ha coincidido).
-           Si ya habéis hecho Salmos antes, puedes meterlas: genera, mueve a cada uno a su grupo real con el desplegable, pon la fecha y guarda.</p>`;
+        ? `<p class="muted">Pulsa “Generar grupos” para crear la propuesta de la próxima Celebración.</p>`
+        : `<p class="muted">Todavía no hay historial. Pulsa “Generar grupos” para la primera Celebración (será al azar, porque aún nadie ha coincidido).
+           Si ya habéis hecho Celebraciones antes, puedes meterlas: genera, mueve a cada uno a su grupo real con el desplegable, pon la fecha y guarda.</p>`;
       return;
     }
     const { repes, max, nuevos, avisos } = analizar(propuesta.grupos);
@@ -614,7 +614,7 @@
   });
 
   function textoRonda(r) {
-    let t = `📖 ${r.tema ? r.tema + ' – ' : 'Salmo – '}${fechaCorta(r.fecha)}\n`;
+    let t = `📖 ${r.tema ? r.tema + ' – ' : 'Celebración – '}${fechaCorta(r.fecha)}\n`;
     r.grupos.forEach((g, gi) => {
       t += `\n*${(r.cabeceras && r.cabeceras[gi]) || 'Grupo ' + (gi + 1)}*\n` + g.map(id => '• ' + nombreDe(id)).join('\n') + '\n';
     });
@@ -661,7 +661,7 @@
       maxV = Math.max(maxV, v);
     }
     const pct = totalPares ? Math.round(100 * hechos / totalPares) : 0;
-    $('#progreso').innerHTML = `<strong>${hechos} de ${totalPares}</strong> parejas posibles ya han coincidido (${pct}%) en ${estado.rondas.length} ${estado.rondas.length === 1 ? 'Salmo' : 'Salmos'}.
+    $('#progreso').innerHTML = `<strong>${hechos} de ${totalPares}</strong> parejas posibles ya han coincidido (${pct}%) en ${estado.rondas.length} ${estado.rondas.length === 1 ? 'Celebración' : 'Celebraciones'}.
       <div class="bar" style="margin-top:8px"><div style="width:${pct}%"></div></div>`;
 
     const color = (v) => {
@@ -702,7 +702,7 @@
 
   // ---------- Historial ----------
   function pintarHistorial() {
-    if (!estado.rondas.length) { $('#listaHistorial').innerHTML = '<p class="muted">Aún no hay Salmos guardados.</p>'; return; }
+    if (!estado.rondas.length) { $('#listaHistorial').innerHTML = '<p class="muted">Aún no hay Celebraciones guardadas.</p>'; return; }
     const filas = estado.rondas.map((r, ri) => ({ r, ri })).reverse().map(({ r, ri }) => `
       <tr><td style="white-space:nowrap"><strong>${fechaBonita(r.fecha)}</strong></td>
       <td>${r.grupos.map((g, gi) => `<div><span class="muted">G${gi + 1}:</span> ${g.map(id => esc(nombreDe(id))).join(' · ')}</div>`).join('')}</td>
@@ -716,7 +716,7 @@
     const b = e.target.dataset.borrar, c = e.target.dataset.copiar, d = e.target.dataset.pdf;
     if (d !== undefined) abrirPdf(estado.rondas[+d]);
     if (c !== undefined) copiar(textoRonda(estado.rondas[+c]));
-    if (b !== undefined && confirm(`¿Borrar el Salmo del ${fechaBonita(estado.rondas[+b].fecha)}? Dejará de contar en el historial.`)) {
+    if (b !== undefined && confirm(`¿Borrar la Celebración del ${fechaBonita(estado.rondas[+b].fecha)}? Dejará de contar en el historial.`)) {
       estado.rondas.splice(+b, 1);
       guardar(); pintarTodo();
     }
@@ -855,7 +855,7 @@
     $('#pdfHoja').innerHTML = htmlHoja(r);
     tituloOriginal = document.title;
     // El título del documento es el nombre que el navegador propone para el PDF.
-    document.title = `${r.celebracion || 'Salmo'} ${fechaCorta(r.fecha)}`.replace(/[\/\\:*?"<>|]/g, '-');
+    document.title = `${r.celebracion || 'Celebración'} ${fechaCorta(r.fecha)}`.replace(/[\/\\:*?"<>|]/g, '-');
     const pagina = document.createElement('style');
     pagina.id = 'estiloPagina';
     pagina.textContent = '@page { size: A4 landscape; margin: 12mm; }';
@@ -881,7 +881,7 @@
 
   // ---------- Copia de seguridad ----------
   $('#btnExportar').addEventListener('click', () => {
-    const nombre = `salmo-historial-${hoy()}.json`;
+    const nombre = `celebracion-historial-${hoy()}.json`;
     const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
     // En el móvil se abre el menú Compartir (Guardar en Archivos, WhatsApp, correo…).
     const archivo = new File([blob], nombre, { type: 'application/json' });
@@ -903,7 +903,7 @@
       try {
         const s = JSON.parse(lector.result);
         if (!Array.isArray(s.participantes) || !Array.isArray(s.rondas)) throw new Error('formato');
-        if (!confirm(`La copia tiene ${s.participantes.length} participantes y ${s.rondas.length} Salmos. ¿Reemplazar los datos actuales?`)) return;
+        if (!confirm(`La copia tiene ${s.participantes.length} participantes y ${s.rondas.length} Celebraciones. ¿Reemplazar los datos actuales?`)) return;
         estado = s;
         estado.numGrupos = estado.numGrupos || 6;
         estado.siguienteId = estado.siguienteId || estado.participantes.length + 1;

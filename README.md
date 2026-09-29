@@ -1,6 +1,6 @@
-# 📖 Grupos de Salmo
+# 📖 Grupos Celebración en las Casas
 
-App para repartir a la comunidad en los grupos de cada Salmo de forma que **todos acabéis coincidiendo con todos** y nadie repita con los mismos mientras queden personas con las que aún no ha coincidido.
+App para repartir a la comunidad en los grupos de cada Celebración de forma que **todos acabéis coincidiendo con todos** y nadie repita con los mismos mientras queden personas con las que aún no ha coincidido.
 
 Funciona en **iPhone, iPad, Android, PC y Mac**, también sin internet una vez abierta.
 
@@ -24,7 +24,7 @@ La primera vez te pedirá tu correo y contraseña; después la sesión queda abi
 
 ## Agregar o quitar participantes
 
-Pulsa **👥 Agregar/Quitar participantes** en Nueva ronda. Quien ya ha participado en algún Salmo pasa a “Dados de baja” y conserva su historial (puedes volver a agregarlo); si nunca participó, se borra sin más.
+Pulsa **👥 Agregar/Quitar participantes** en Nueva ronda. Quien ya ha participado en alguna Celebración pasa a “Dados de baja” y conserva su historial (puedes volver a agregarlo); si nunca participó, se borra sin más.
 
 ## Dónde se guardan los datos
 

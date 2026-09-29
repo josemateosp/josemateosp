@@ -1,7 +1,7 @@
 {
   "name": "Grupos Celebración en las Casas",
-  "short_name": "Salmo",
-  "description": "Reparte los grupos del Salmo para que todos coincidáis con todos.",
+  "short_name": "Celebración",
+  "description": "Reparte los grupos de la Celebración en las Casas para que todos coincidáis con todos.",
   "lang": "es",
   "start_url": "./",
   "scope": "./",

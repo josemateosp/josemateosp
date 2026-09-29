@@ -71,7 +71,7 @@ function mensajeError(err) {
 let desuscribir = null;
 let primeraDelServidor = true;
 const vacio = (s) => !(s.participantes.length || s.rondas.length);
-const resumen = (s) => `${s.rondas.length} Salmos y ${s.participantes.length} participantes`;
+const resumen = (s) => `${s.rondas.length} Celebraciones y ${s.participantes.length} participantes`;
 
 function subir(s) {
   estadoNube('subiendo');
