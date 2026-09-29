@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5a1f1b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Salmo">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Grupos de Salmo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20x%3D%2215%22%20y%3D%228%22%20width%3D%2241%22%20height%3D%2250%22%20rx%3D%223%22%20fill%3D%22%23f1e4c3%22%20stroke%3D%22%23b08d57%22%20stroke-width%3D%221.5%22/%3E%3Cpath%20d%3D%22M19%2056h35M19%2053h35%22%20stroke%3D%22%23c9b48a%22%20stroke-width%3D%221%22/%3E%3Crect%20x%3D%229%22%20y%3D%225%22%20width%3D%2242%22%20height%3D%2250%22%20rx%3D%224%22%20fill%3D%22%235a1f1b%22/%3E%3Crect%20x%3D%229%22%20y%3D%225%22%20width%3D%227%22%20height%3D%2250%22%20rx%3D%223%22%20fill%3D%22%233f1411%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2215%22%20width%3D%225%22%20height%3D%2227%22%20rx%3D%221%22%20fill%3D%22%23d4af37%22/%3E%3Crect%20x%3D%2224%22%20y%3D%2222%22%20width%3D%2219%22%20height%3D%225%22%20rx%3D%221%22%20fill%3D%22%23d4af37%22/%3E%3Crect%20x%3D%2220%22%20y%3D%2210%22%20width%3D%2227%22%20height%3D%2240%22%20rx%3D%222%22%20fill%3D%22none%22%20stroke%3D%22%23d4af37%22%20stroke-width%3D%221%22%20opacity%3D%22.6%22/%3E%3Cpath%20d%3D%22M42%2055v8l3-2.5%203%202.5v-8z%22%20fill%3D%22%23b3261e%22/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --card: #ffffff;
+    --ink: #22201c;
+    --muted: #6d675e;
+    --line: #e2ddd3;
+    --accent: #b4532a;
+    --accent-ink: #ffffff;
+    --ok: #2f7d4f;
+    --warn: #b7791f;
+    --bad: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header { padding: 20px 16px 0; max-width: 1100px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 1.6rem; display: flex; align-items: center; gap: 10px; }
+  .biblia { width: 1.5em; height: 1.5em; flex: none; }
+  .dlg-body label.campo { display: block; margin: 10px 0 4px; font-weight: 600; }
+  .dlg-body label.campo + input { width: 100%; }
+  .cabeceras { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .cabeceras input { width: 100%; }
+  .sub { color: var(--muted); margin: 0 0 16px; }
+  nav { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--line); }
+  nav button {
+    border: 0; background: none; padding: 10px 14px; font: inherit; cursor: pointer;
+    color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px;
+  }
+  nav button.active { color: var(--ink); border-color: var(--accent); font-weight: 600; }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  section { display: none; }
+  section.active { display: block; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  label.inline { display: inline-flex; gap: 6px; align-items: center; }
+  input[type=number] { width: 70px; }
+  input, select, button { font: inherit; }
+  input[type=text], input[type=date], input[type=number], select {
+    padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff;
+  }
+  .btn {
+    border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 8px 14px; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--muted); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.small { padding: 3px 9px; font-size: .9rem; }
+  .btn.danger { color: var(--bad); }
+  .muted { color: var(--muted); }
+  .asist { columns: 4 210px; column-gap: 12px; margin-top: 10px; }
+  .asist label { display: flex; margin-bottom: 4px; break-inside: avoid; }
+  .grupos { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+  .grupo { border-radius: 10px; padding: 12px; border: 1px solid rgba(0,0,0,.08); }
+  .grupo h3 { margin: 0 0 8px; font-size: 1.05rem; display: flex; justify-content: space-between; }
+  .grupo ul { list-style: none; margin: 0; padding: 0; }
+  .grupo li { display: flex; justify-content: space-between; gap: 6px; align-items: center; padding: 3px 0; }
+  .grupo li select { font-size: .8rem; padding: 1px 4px; background: rgba(255,255,255,.7); }
+  .avisos { font-size: .85rem; margin-top: 8px; color: #5a3b00; }
+  .resumen { margin: 12px 0; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 99px; background: #eee; font-size: .85rem; margin: 2px; }
+  .chip.falta { background: #fde8e1; }
+  table { border-collapse: collapse; }
+  .matriz-wrap { overflow: auto; max-height: 75vh; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .matriz th, .matriz td { border: 1px solid var(--line); padding: 2px 5px; text-align: center; font-size: .8rem; min-width: 26px; }
+  .matriz thead th { position: sticky; top: 0; background: #fff; writing-mode: vertical-rl; transform: rotate(180deg); height: 130px; text-align: left; z-index: 1; }
+  .matriz tbody th { position: sticky; left: 0; background: #fff; text-align: left; white-space: nowrap; }
+  .matriz td.self { background: #ddd; }
+  .historial table { width: 100%; }
+  .historial td, .historial th { border-bottom: 1px solid var(--line); padding: 6px; text-align: left; vertical-align: top; }
+  .part-list li { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
+  .part-list { list-style: none; padding: 0; margin: 0; }
+  .part-list input[type=text] { flex: 1; max-width: 320px; }
+  .bar { height: 10px; background: #eee; border-radius: 99px; overflow: hidden; }
+  .bar > div { height: 100%; background: var(--ok); }
+  textarea { width: 100%; min-height: 160px; font: 14px/1.4 ui-monospace, monospace; }
+  dialog { border: 1px solid var(--line); border-radius: 12px; padding: 0; width: min(560px, calc(100vw - 32px)); max-height: 85vh; }
+  dialog::backdrop { background: rgba(0,0,0,.35); }
+  .dlg-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .dlg-head h3 { margin: 0; }
+  .dlg-body { padding: 14px 16px; overflow: auto; max-height: calc(85vh - 60px); }
+  .gest-list { list-style: none; margin: 8px 0 0; padding: 0; }
+  .gest-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .gest-list li:last-child { border-bottom: 0; }
+  body { padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+
+  /* Móvil */
+  @media (max-width: 640px) {
+    header { padding: 14px 12px 0; }
+    main { padding: 12px; }
+    h1 { font-size: 1.3rem; }
+    .sub { font-size: .9rem; margin-bottom: 10px; }
+    nav { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    nav button { white-space: nowrap; padding: 10px; }
+    .panel { padding: 12px; }
+    .row > .btn, .row > label.btn { flex: 1 1 auto; text-align: center; }
+    input, select, .grupo li select { font-size: 16px; } /* evita el zoom automático de iOS */
+    .grupos { grid-template-columns: 1fr; }
+    .historial thead { display: none; }
+    .historial table, .historial tbody, .historial tr, .historial td { display: block; width: 100%; }
+    .historial tr { border-bottom: 1px solid var(--line); padding: 6px 0; }
+    .historial td { border: 0; padding: 3px 0; }
+    .part-list li { flex-wrap: wrap; }
+  }
+
+  /* Hoja para PDF */
+  #vistaPdf { position: fixed; inset: 0; z-index: 50; background: #e9e3d8; overflow: auto; -webkit-overflow-scrolling: touch; }
+  .pdf-barra { position: sticky; top: 0; z-index: 1; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    padding: calc(10px + env(safe-area-inset-top)) 12px 10px; background: rgba(233,227,216,.95); }
+  .pdf-marco { padding: 12px; }
+  .hoja { width: 273mm; min-height: 186mm; margin: 0 auto; background: #fff; padding: 12mm 14mm; box-shadow: 0 2px 12px rgba(0,0,0,.15);
+    display: flex; flex-direction: column; font-family: Georgia, "Times New Roman", serif; color: #2b211c; }
+  .hoja * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .h-cab { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; padding-bottom: 8px; border-bottom: 2px solid #5a1f1b; }
+  .h-cel { font-size: 13pt; letter-spacing: .06em; text-transform: uppercase; font-weight: bold; color: #5a1f1b; }
+  .h-fecha { font-size: 20pt; font-weight: bold; margin-top: 2px; }
+  .h-com { display: flex; align-items: center; gap: 10px; font-size: 14pt; font-style: italic; color: #5a1f1b; text-align: right; }
+  .h-com .biblia { width: 34px; height: 34px; }
+  .h-filete { height: 3px; margin-top: 3px; border-bottom: 1px solid #b08d57; }
+  .h-tema { margin: 9mm 0 7mm; text-align: center; background: #f6e7da; border: 1px solid #e3cdb7; border-radius: 6px; padding: 5mm 8mm; }
+  .h-tema small { display: block; font-size: 9pt; letter-spacing: .25em; text-transform: uppercase; color: #8a6a4a; margin-bottom: 2mm; }
+  .h-titulo { font-size: 19pt; font-weight: bold; line-height: 1.25; }
+  .hoja table { border-collapse: separate; border-spacing: 3mm 0; table-layout: fixed; margin: 0 -3mm; width: calc(100% + 6mm); }
+  .hoja th { background: #5a1f1b; color: #fff; font-size: 12.5pt; letter-spacing: .08em; text-transform: uppercase; padding: 4mm 2mm; border-radius: 5px 5px 0 0; }
+  .hoja td { text-align: center; padding: 3.2mm 2mm; font-size: 12pt; border-left: 1px solid #e6d9c8; border-right: 1px solid #e6d9c8; border-bottom: 1px solid #efe5d8; background: #fff; }
+  .hoja tbody tr:nth-child(even) td { background: #fbf6ef; }
+  .hoja tbody tr:last-child td { border-bottom: 2px solid #b08d57; }
+  .hoja tfoot td { border: 0; background: none; font-size: 9pt; color: #8a6a4a; font-style: italic; padding-top: 2mm; }
+  .hoja.muchos .h-titulo { font-size: 17pt; }
+  .hoja.muchos th { font-size: 11pt; }
+  .hoja.muchos td { font-size: 10.5pt; }
+  .h-pie { margin-top: auto; padding-top: 6mm; display: flex; justify-content: space-between; font-size: 9pt; color: #8a6a4a; }
+
+  @media print {
+    header nav, .noprint, .grupo select { display: none !important; }
+    body { background: #fff; padding: 0; }
+    body.modo-pdf > *:not(#vistaPdf) { display: none !important; }
+    #vistaPdf { position: static; overflow: visible; background: #fff; }
+    .pdf-barra { display: none !important; }
+    .pdf-marco { padding: 0; }
+    .hoja { zoom: 1 !important; margin: 0; box-shadow: none; width: auto; min-height: 184mm; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1><svg class="biblia" viewBox="0 0 64 64" aria-hidden="true"><rect x="15" y="8" width="41" height="50" rx="3" fill="#f1e4c3" stroke="#b08d57" stroke-width="1.5"/><path d="M19 56h35M19 53h35" stroke="#c9b48a" stroke-width="1"/><rect x="9" y="5" width="42" height="50" rx="4" fill="#5a1f1b"/><rect x="9" y="5" width="7" height="50" rx="3" fill="#3f1411"/><rect x="31" y="15" width="5" height="27" rx="1" fill="#d4af37"/><rect x="24" y="22" width="19" height="5" rx="1" fill="#d4af37"/><rect x="20" y="10" width="27" height="40" rx="2" fill="none" stroke="#d4af37" stroke-width="1" opacity=".6"/><path d="M42 55v8l3-2.5 3 2.5v-8z" fill="#b3261e"/></svg> Grupos de Salmo</h1>
+  <p class="sub">Genera los grupos del mes intentando que todos coincidáis con todos y que nadie repita más de la cuenta.</p>
+  <nav id="tabs">
+    <button data-tab="nueva" class="active">Nueva ronda</button>
+    <button data-tab="matriz">Quién con quién</button>
+    <button data-tab="historial">Historial</button>
+    <button data-tab="participantes">Participantes</button>
+    <button data-tab="copia">Copia de seguridad</button>
+  </nav>
+</header>
+
+<main>
+  <dialog id="dlgGestionar">
+    <div class="dlg-head"><h3>👥 Agregar/Quitar participantes</h3>
+      <button class="btn small" id="btnCerrarGestion" aria-label="Cerrar">✕</button></div>
+    <div class="dlg-body">
+      <div class="row">
+        <input type="text" id="gestNombre" placeholder="Ej.: Luis y Marta" style="flex:1">
+        <button class="btn primary" id="btnGestAnadir">Agregar</button>
+      </div>
+      <p class="muted" style="font-size:.9rem;margin:6px 0 0">Los matrimonios, con “y” (o “e”) entre los nombres.</p>
+      <h4 style="margin:16px 0 0">En el grupo (<span id="gestNumActivos"></span>)</h4>
+      <ul class="gest-list" id="gestActivos"></ul>
+      <div id="gestBajasWrap">
+        <h4 style="margin:16px 0 0">Dados de baja</h4>
+        <p class="muted" style="font-size:.9rem;margin:2px 0 0">Se conserva su historial por si vuelven.</p>
+        <ul class="gest-list" id="gestBajas"></ul>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="dlgPdf">
+    <div class="dlg-head"><h3>📄 Generar PDF</h3>
+      <button class="btn small" id="btnCerrarPdf" aria-label="Cerrar">✕</button></div>
+    <div class="dlg-body">
+      <label class="campo" for="pdfTema">Título del tema</label>
+      <input type="text" id="pdfTema" placeholder="Ej.: 1º Poema del Cantar de los Cantares (Escrutar Jn 10, 1-16)">
+      <label class="campo" for="pdfCelebracion">Celebración</label>
+      <input type="text" id="pdfCelebracion" placeholder="Ej.: 2ª Celebración (Casas)">
+      <label class="campo" for="pdfComunidad">Comunidad (a la derecha del encabezado)</label>
+      <input type="text" id="pdfComunidad">
+      <label class="campo">Encabezado de cada grupo <span class="muted" style="font-weight:400">(por ejemplo, quién lo acoge en casa)</span></label>
+      <div class="cabeceras" id="pdfCabeceras"></div>
+      <p class="muted" style="font-size:.9rem">Verás la hoja y un botón para imprimir. En el ordenador, en “Destino” elige <strong>Guardar como PDF</strong>;
+        en el iPhone o Android, pulsa <strong>Compartir → Guardar en Archivos</strong> (o “Guardar como PDF”).</p>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="btnPdfGenerar">📄 Generar PDF</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- NUEVA RONDA -->
+  <section id="nueva" class="active">
+    <div class="panel">
+      <div class="row">
+        <label class="inline">Número de grupos <input type="number" id="numGrupos" min="1" max="20"></label>
+        <label class="inline">Fecha del Salmo <input type="date" id="fecha"></label>
+        <button class="btn primary" id="btnGenerar">✨ Generar grupos</button>
+        <button class="btn" id="btnGestionar">👥 Agregar/Quitar participantes</button>
+      </div>
+      <details style="margin-top:10px">
+        <summary>¿Quién viene este mes? <span class="muted" id="asistResumen"></span></summary>
+        <div class="asist" id="asistencia"></div>
+      </details>
+    </div>
+
+    <div id="propuesta"></div>
+  </section>
+
+  <!-- MATRIZ -->
+  <section id="matriz">
+    <div class="panel" id="progreso"></div>
+    <div class="panel">
+      <div class="row">
+        <label class="inline">Ver a quién le falta coincidir:
+          <select id="selPersona"></select>
+        </label>
+      </div>
+      <div id="faltan" style="margin-top:10px"></div>
+    </div>
+    <p class="muted">Número de veces que cada uno ha coincidido con cada otro. Los huecos vacíos son los que aún no han coincidido.</p>
+    <div class="matriz-wrap"><table class="matriz" id="tablaMatriz"></table></div>
+  </section>
+
+  <!-- HISTORIAL -->
+  <section id="historial">
+    <div class="panel historial" id="listaHistorial"></div>
+  </section>
+
+  <!-- PARTICIPANTES -->
+  <section id="participantes">
+    <div class="panel">
+      <p class="muted" style="margin-top:0">Escribe los matrimonios con “y” (o “e”) entre los nombres: siempre irán juntos al mismo grupo.
+        Si cambias un nombre se conserva su historial. Desmarca “en el grupo” si alguien deja de participar (su historial se mantiene).</p>
+      <ul class="part-list" id="listaParticipantes"></ul>
+      <div class="row" style="margin-top:12px">
+        <input type="text" id="nuevoNombre" placeholder="Ej.: Luis y Marta">
+        <button class="btn" id="btnAnadir">Añadir</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- COPIA -->
+  <section id="copia">
+    <div class="panel">
+      <h3 style="margin-top:0">Guardar y recuperar el historial</h3>
+      <p>Los datos se guardan automáticamente en este aparato (cada móvil u ordenador tiene los suyos). Aun así, <strong>descarga una copia de vez en cuando</strong>
+        (por ejemplo, después de cada Salmo): si borras los datos del navegador o cambias de ordenador, podrás recuperarlo todo con “Cargar copia”.</p>
+      <div class="row">
+        <button class="btn primary" id="btnExportar">⬇️ Descargar copia (.json)</button>
+        <label class="btn">⬆️ Cargar copia<input type="file" id="fileImport" accept=".json,application/json" hidden></label>
+        <button class="btn danger" id="btnBorrarTodo">Borrar todo</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="vistaPdf" hidden>
+  <div class="pdf-barra">
+    <button class="btn primary" id="btnImprimirPdf">📄 Guardar como PDF / Imprimir</button>
+    <button class="btn" id="btnCerrarVista">Cerrar</button>
+  </div>
+  <div class="pdf-marco" id="pdfHoja"></div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const KEY = 'cenas-grupos-v1';
+  // Colores de los grupos (versión suave de los de la hoja de Excel).
+  const COLORES = ['#fdf3c4', '#cfe8f7', '#e4e4e4', '#f9d0cc', '#fde0b8', '#d5ebcf', '#ffffff',
+                   '#e8dcf5', '#d7f2ee', '#f5dbe8'];
+
+  // ---------- Estado ----------
+  function estadoInicial() {
+    return {
+      version: 1,
+      numGrupos: 6,
+      // La lista empieza vacía: los nombres no van en el archivo (la página es pública);
+      // se añaden desde la app o se cargan con una copia de seguridad.
+      participantes: [],
+      siguienteId: 1,
+      rondas: [] // { fecha: 'YYYY-MM-DD', grupos: [[id, ...], ...] }
+    };
+  }
+  function cargar() {
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY));
+      if (s && Array.isArray(s.participantes) && Array.isArray(s.rondas)) return s;
+    } catch (e) { /* sin datos */ }
+    return estadoInicial();
+  }
+  function guardar() {
+    try { localStorage.setItem(KEY, JSON.stringify(estado)); }
+    catch (e) { alert('No se han podido guardar los datos en el navegador. Descarga una copia de seguridad.'); }
+  }
+  let estado = cargar();
+  let propuesta = null;       // { grupos: [[id...]], fecha }
+  let ausentes = new Set();   // ids que no vienen este mes
+  let recienGuardada = null;  // última ronda guardada, para ofrecer el PDF
+
+  // ---------- Utilidades ----------
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const personas = (nombre) => nombre.trim().split(/\s+(?:y|e)\s+/i).length;
+  // Orden alfabético en español: ignora tildes y mayúsculas (Ángel va junto a Andrés).
+  const alfabetico = (lista) => [...lista].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
+  const porId = () => Object.fromEntries(estado.participantes.map(p => [p.id, p]));
+  const nombreDe = (id) => (porId()[id] || { nombre: '(borrado)' }).nombre;
+  const clave = (a, b) => a < b ? a + '|' + b : b + '|' + a;
+  const hoy = () => new Date().toISOString().slice(0, 10);
+  const fechaCorta = (f) => f.split('-').reverse().join('/'); // dd/mm/aaaa
+  const fechaBonita = (f) => {
+    const d = new Date(f + 'T12:00:00');
+    return isNaN(d) ? f : d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+  function barajar(a) {
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  // Cuántas veces ha coincidido cada par y en qué ronda fue la última vez.
+  function estadisticas() {
+    const veces = {}, ultima = {};
+    estado.rondas.forEach((r, ri) => {
+      r.grupos.forEach(g => {
+        for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) {
+          const k = clave(g[i], g[j]);
+          veces[k] = (veces[k] || 0) + 1;
+          ultima[k] = ri;
+        }
+      });
+    });
+    return { veces, ultima };
+  }
+
+  // ---------- Algoritmo ----------
+  // Coste de juntar a dos: crece de forma exponencial con las veces que ya han coincidido,
+  // así el programa prefiere que muchos repitan 1 vez antes que uno repita 2 veces.
+  // Un pequeño extra penaliza haber coincidido hace poco.
+  function costePar(v, rondasDesde) {
+    if (!v) return 0;
+    return Math.pow(30, v - 1) + 0.3 / rondasDesde;
+  }
+
+  function optimizar(ids, G) {
+    const n = ids.length;
+    G = Math.max(1, Math.min(G, n));
+    const { veces, ultima } = estadisticas();
+    const R = estado.rondas.length;
+    const W = ids.map(a => ids.map(b => {
+      if (a === b) return 0;
+      const k = clave(a, b);
+      return costePar(veces[k] || 0, R - (ultima[k] ?? 0));
+    }));
+    const pers = ids.map(id => personas(nombreDe(id)));
+    const media = pers.reduce((s, x) => s + x, 0) / G;
+    const PESO_TAM = 3; // equilibra el número de personas por grupo
+    const tamanos = Array.from({ length: G }, (_, g) => Math.floor(n / G) + (g < n % G ? 1 : 0));
+
+    let mejor = null, mejorCoste = Infinity;
+    const REINICIOS = 1000;
+    for (let r = 0; r < REINICIOS; r++) {
+      const orden = barajar([...Array(n).keys()]);
+      const asig = new Array(n);
+      let p = 0;
+      tamanos.forEach((t, g) => { for (let i = 0; i < t; i++) asig[orden[p++]] = g; });
+      // M[x][g] = suma de costes de x con los miembros del grupo g
+      const M = Array.from({ length: n }, () => new Array(G).fill(0));
+      const P = new Array(G).fill(0);
+      for (let x = 0; x < n; x++) {
+        P[asig[x]] += pers[x];
+        for (let y = 0; y < n; y++) M[x][asig[y]] += W[x][y];
+      }
+      // Búsqueda local: intercambiar dos unidades de grupos distintos mientras mejore.
+      let mejora = true;
+      while (mejora) {
+        mejora = false;
+        for (const i of barajar([...Array(n).keys()])) {
+          for (let j = 0; j < n; j++) {
+            const g1 = asig[i], g2 = asig[j];
+            if (g1 === g2) continue;
+            let d = M[i][g2] - M[i][g1] + M[j][g1] - M[j][g2] - 2 * W[i][j];
+            const dp = pers[j] - pers[i];
+            if (dp) {
+              d += PESO_TAM * ((P[g1] + dp - media) ** 2 - (P[g1] - media) ** 2
+                             + (P[g2] - dp - media) ** 2 - (P[g2] - media) ** 2);
+            }
+            if (d < -1e-9) {
+              for (let x = 0; x < n; x++) {
+                M[x][g1] += W[x][j] - W[x][i];
+                M[x][g2] += W[x][i] - W[x][j];
+              }
+              P[g1] += dp; P[g2] -= dp;
+              asig[i] = g2; asig[j] = g1;
+              mejora = true;
+            }
+          }
+        }
+      }
+      let coste = 0;
+      for (let x = 0; x < n; x++) for (let y = x + 1; y < n; y++) if (asig[x] === asig[y]) coste += W[x][y];
+      for (let g = 0; g < G; g++) coste += PESO_TAM * (P[g] - media) ** 2;
+      if (coste < mejorCoste - 1e-9) { mejorCoste = coste; mejor = asig.slice(); }
+    }
+    const grupos = Array.from({ length: G }, () => []);
+    mejor.forEach((g, x) => grupos[g].push(ids[x]));
+    return grupos;
+  }
+
+  // ---------- Pestañas ----------
+  document.querySelectorAll('#tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('active', x === b));
+    document.querySelectorAll('main section').forEach(s => s.classList.toggle('active', s.id === b.dataset.tab));
+    pintarTodo();
+  }));
+
+  // ---------- Nueva ronda ----------
+  function activos() { return alfabetico(estado.participantes.filter(p => p.activo)); }
+
+  function pintarAsistencia() {
+    const act = activos();
+    $('#asistencia').innerHTML = act.map(p =>
+      `<label class="inline"><input type="checkbox" data-id="${p.id}" ${ausentes.has(p.id) ? '' : 'checked'}> ${esc(p.nombre)}</label>`
+    ).join('');
+    const vienen = act.filter(p => !ausentes.has(p.id));
+    const nPers = vienen.reduce((s, p) => s + personas(p.nombre), 0);
+    $('#asistResumen').textContent = `(${vienen.length} de ${act.length} · ${nPers} personas)`;
+  }
+  $('#asistencia').addEventListener('change', e => {
+    const id = e.target.dataset.id;
+    if (!id) return;
+    e.target.checked ? ausentes.delete(id) : ausentes.add(id);
+    pintarAsistencia();
+  });
+
+  $('#numGrupos').addEventListener('change', e => {
+    const v = parseInt(e.target.value, 10);
+    if (v >= 1) { estado.numGrupos = v; guardar(); }
+  });
+
+  $('#btnGenerar').addEventListener('click', () => {
+    const ids = activos().filter(p => !ausentes.has(p.id)).map(p => p.id);
+    if (ids.length < 2) { alert('Hace falta al menos dos participantes.'); return; }
+    const btn = $('#btnGenerar');
+    btn.disabled = true; btn.textContent = 'Calculando…';
+    recienGuardada = null;
+    setTimeout(() => {
+      propuesta = { grupos: optimizar(ids, estado.numGrupos), fecha: $('#fecha').value || hoy() };
+      btn.disabled = false; btn.textContent = '✨ Generar otra vez';
+      pintarPropuesta();
+    }, 20);
+  });
+
+  function analizar(grupos) {
+    const { veces } = estadisticas();
+    let repes = 0, max = 0, nuevos = 0;
+    const avisos = grupos.map(g => {
+      const out = [];
+      for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) {
+        const v = veces[clave(g[i], g[j])] || 0;
+        if (v) { repes++; max = Math.max(max, v); out.push({ a: g[i], b: g[j], v }); }
+        else nuevos++;
+      }
+      return out.sort((x, y) => y.v - x.v);
+    });
+    return { repes, max, nuevos, avisos };
+  }
+
+  function pintarPropuesta() {
+    const cont = $('#propuesta');
+    if (!propuesta && !estado.participantes.length) {
+      cont.innerHTML = `<div class="panel"><h3 style="margin-top:0">¡Bienvenido!</h3>
+        <p>Todavía no hay nadie en la lista. Para empezar:</p>
+        <div class="row">
+          <button class="btn primary" data-ir="copia">⬆️ Cargar mi copia de seguridad</button>
+          <button class="btn" data-ir="gestionar">👥 Añadir participantes</button>
+        </div>
+        <p class="muted" style="margin-bottom:0;font-size:.9rem">Si ya usabas el programa en otro aparato, descarga allí la copia (pestaña “Copia de seguridad”) y cárgala aquí.</p></div>`;
+      return;
+    }
+    if (!propuesta && recienGuardada && estado.rondas.includes(recienGuardada)) {
+      cont.innerHTML = `<div class="panel">✅ Ronda del ${fechaBonita(recienGuardada.fecha)} guardada.
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="btnPdfGuardada">📄 Generar PDF</button>
+          <button class="btn" id="btnCopiarGuardada">📋 Copiar para WhatsApp</button>
+        </div>
+        <p class="muted" style="margin:8px 0 0;font-size:.9rem">Recuerda descargar una copia de seguridad de vez en cuando.
+          También puedes generar el PDF más tarde desde el Historial.</p></div>`;
+      return;
+    }
+    if (!propuesta) {
+      cont.innerHTML = estado.rondas.length
+        ? `<p class="muted">Pulsa “Generar grupos” para crear la propuesta del próximo Salmo.</p>`
+        : `<p class="muted">Todavía no hay historial. Pulsa “Generar grupos” para el primer Salmo (será al azar, porque aún nadie ha coincidido).
+           Si ya habéis hecho Salmos antes, puedes meterlas: genera, mueve a cada uno a su grupo real con el desplegable, pon la fecha y guarda.</p>`;
+      return;
+    }
+    const { repes, max, nuevos, avisos } = analizar(propuesta.grupos);
+    const G = propuesta.grupos.length;
+    const opciones = (gActual) => Array.from({ length: G }, (_, g) =>
+      `<option value="${g}" ${g === gActual ? 'selected' : ''}>Grupo ${g + 1}</option>`).join('');
+    const tarjetas = propuesta.grupos.map((g, gi) => {
+      const nPers = g.reduce((s, id) => s + personas(nombreDe(id)), 0);
+      const lis = g.map(id => `<li><span>${esc(nombreDe(id))}</span>
+        <select data-mover="${id}" title="Mover a otro grupo">${opciones(gi)}</select></li>`).join('');
+      const av = avisos[gi].map(x =>
+        `<div>↺ ${esc(nombreDe(x.a))} – ${esc(nombreDe(x.b))}: ${x.v} ${x.v === 1 ? 'vez' : 'veces'} antes</div>`).join('');
+      return `<div class="grupo" style="background:${COLORES[gi % COLORES.length]}">
+        <h3><span>Grupo ${gi + 1}</span><span class="muted">${nPers} pers.</span></h3>
+        <ul>${lis}</ul>${av ? `<div class="avisos">${av}</div>` : ''}</div>`;
+    }).join('');
+    let msg;
+    if (!repes) msg = `✅ Nadie repite: son ${nuevos} encuentros nuevos.`;
+    else msg = `${nuevos} encuentros nuevos y ${repes} que repiten (como mucho ${max} ${max === 1 ? 'vez' : 'veces'} antes).`;
+    cont.innerHTML = `
+      <div class="panel resumen">${msg}
+        <div class="row noprint" style="margin-top:10px">
+          <button class="btn primary" id="btnGuardar">💾 Guardar esta ronda (${fechaBonita(propuesta.fecha)})</button>
+          <button class="btn" id="btnCopiarTexto">📋 Copiar para WhatsApp</button>
+          <button class="btn" onclick="window.print()">🖨️ Imprimir</button>
+          <button class="btn danger" id="btnDescartar">Descartar</button>
+        </div>
+        <p class="muted" style="margin:8px 0 0;font-size:.9rem">Puedes mover a alguien de grupo con su desplegable antes de guardar.
+          Hasta que no pulses “Guardar”, esta ronda no cuenta en el historial.</p>
+      </div>
+      <div class="grupos">${tarjetas}</div>`;
+  }
+
+  $('#propuesta').addEventListener('change', e => {
+    const id = e.target.dataset.mover;
+    if (!id || !propuesta) return;
+    const destino = parseInt(e.target.value, 10);
+    propuesta.grupos = propuesta.grupos.map(g => g.filter(x => x !== id));
+    propuesta.grupos[destino].push(id);
+    pintarPropuesta();
+  });
+  $('#fecha').addEventListener('change', e => {
+    if (propuesta) { propuesta.fecha = e.target.value || hoy(); pintarPropuesta(); }
+  });
+
+  function textoRonda(r) {
+    let t = `📖 ${r.tema ? r.tema + ' – ' : 'Salmo – '}${fechaCorta(r.fecha)}\n`;
+    r.grupos.forEach((g, gi) => {
+      t += `\n*${(r.cabeceras && r.cabeceras[gi]) || 'Grupo ' + (gi + 1)}*\n` + g.map(id => '• ' + nombreDe(id)).join('\n') + '\n';
+    });
+    return t;
+  }
+  async function copiar(texto) {
+    try { await navigator.clipboard.writeText(texto); alert('Copiado. Ya puedes pegarlo en WhatsApp.'); }
+    catch (e) { prompt('Copia este texto:', texto); }
+  }
+
+  $('#propuesta').addEventListener('click', e => {
+    if (e.target.dataset.ir === 'copia') return document.querySelector('#tabs [data-tab=copia]').click();
+    if (e.target.dataset.ir === 'gestionar') return $('#btnGestionar').click();
+    if (e.target.id === 'btnPdfGuardada') return abrirPdf(recienGuardada);
+    if (e.target.id === 'btnCopiarGuardada') return copiar(textoRonda(recienGuardada));
+    if (!propuesta) return;
+    if (e.target.id === 'btnGuardar') {
+      const grupos = propuesta.grupos.filter(g => g.length);
+      recienGuardada = { fecha: propuesta.fecha, grupos };
+      estado.rondas.push(recienGuardada);
+      estado.rondas.sort((a, b) => a.fecha.localeCompare(b.fecha));
+      guardar();
+      propuesta = null;
+      $('#btnGenerar').textContent = '✨ Generar grupos';
+      pintarTodo();
+    } else if (e.target.id === 'btnCopiarTexto') {
+      copiar(textoRonda(propuesta));
+    } else if (e.target.id === 'btnDescartar') {
+      propuesta = null;
+      $('#btnGenerar').textContent = '✨ Generar grupos';
+      pintarPropuesta();
+    }
+  });
+
+  // ---------- Quién con quién ----------
+  function pintarMatriz() {
+    const ps = activos();
+    const { veces } = estadisticas();
+    const totalPares = ps.length * (ps.length - 1) / 2;
+    let hechos = 0, maxV = 0;
+    for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) {
+      const v = veces[clave(ps[i].id, ps[j].id)] || 0;
+      if (v) hechos++;
+      maxV = Math.max(maxV, v);
+    }
+    const pct = totalPares ? Math.round(100 * hechos / totalPares) : 0;
+    $('#progreso').innerHTML = `<strong>${hechos} de ${totalPares}</strong> parejas posibles ya han coincidido (${pct}%) en ${estado.rondas.length} ${estado.rondas.length === 1 ? 'Salmo' : 'Salmos'}.
+      <div class="bar" style="margin-top:8px"><div style="width:${pct}%"></div></div>`;
+
+    const color = (v) => {
+      if (!v) return '#fff';
+      const t = maxV > 1 ? (v - 1) / (maxV - 1) : 0;
+      return `hsl(${140 - 130 * t}, 55%, ${82 - 22 * t}%)`;
+    };
+    let html = '<thead><tr><th style="writing-mode:horizontal-tb;transform:none"></th>' +
+      ps.map(p => `<th>${esc(p.nombre)}</th>`).join('') + '</tr></thead><tbody>';
+    ps.forEach(a => {
+      html += `<tr><th>${esc(a.nombre)}</th>` + ps.map(b => {
+        if (a.id === b.id) return '<td class="self"></td>';
+        const v = veces[clave(a.id, b.id)] || 0;
+        return `<td style="background:${color(v)}">${v || ''}</td>`;
+      }).join('') + '</tr>';
+    });
+    $('#tablaMatriz').innerHTML = html + '</tbody>';
+
+    const sel = $('#selPersona');
+    const prev = sel.value;
+    sel.innerHTML = ps.map(p => `<option value="${p.id}">${esc(p.nombre)}</option>`).join('');
+    if (ps.some(p => p.id === prev)) sel.value = prev;
+    pintarFaltan();
+  }
+  function pintarFaltan() {
+    const id = $('#selPersona').value;
+    if (!id) { $('#faltan').innerHTML = ''; return; }
+    const { veces } = estadisticas();
+    const otros = activos().filter(p => p.id !== id)
+      .map(p => ({ p, v: veces[clave(id, p.id)] || 0 }));
+    const faltan = otros.filter(o => !o.v);
+    const ya = otros.filter(o => o.v).sort((a, b) => b.v - a.v);
+    $('#faltan').innerHTML =
+      `<div><strong>Aún no ha coincidido con (${faltan.length}):</strong><br>${faltan.map(o => `<span class="chip falta">${esc(o.p.nombre)}</span>`).join('') || '<span class="muted">¡Con todos! 🎉</span>'}</div>
+       <div style="margin-top:8px"><strong>Ya ha coincidido con:</strong><br>${ya.map(o => `<span class="chip">${esc(o.p.nombre)} ×${o.v}</span>`).join('') || '<span class="muted">nadie todavía</span>'}</div>`;
+  }
+  $('#selPersona').addEventListener('change', pintarFaltan);
+
+  // ---------- Historial ----------
+  function pintarHistorial() {
+    if (!estado.rondas.length) { $('#listaHistorial').innerHTML = '<p class="muted">Aún no hay Salmos guardados.</p>'; return; }
+    const filas = estado.rondas.map((r, ri) => ({ r, ri })).reverse().map(({ r, ri }) => `
+      <tr><td style="white-space:nowrap"><strong>${fechaBonita(r.fecha)}</strong></td>
+      <td>${r.grupos.map((g, gi) => `<div><span class="muted">G${gi + 1}:</span> ${g.map(id => esc(nombreDe(id))).join(' · ')}</div>`).join('')}</td>
+      <td style="white-space:nowrap">
+        <button class="btn small" data-pdf="${ri}" title="Generar PDF">📄 PDF</button>
+        <button class="btn small" data-copiar="${ri}" title="Copiar para WhatsApp">📋</button>
+        <button class="btn small danger" data-borrar="${ri}">Borrar</button></td></tr>`).join('');
+    $('#listaHistorial').innerHTML = `<table><thead><tr><th>Fecha</th><th>Grupos</th><th></th></tr></thead><tbody>${filas}</tbody></table>`;
+  }
+  $('#listaHistorial').addEventListener('click', e => {
+    const b = e.target.dataset.borrar, c = e.target.dataset.copiar, d = e.target.dataset.pdf;
+    if (d !== undefined) abrirPdf(estado.rondas[+d]);
+    if (c !== undefined) copiar(textoRonda(estado.rondas[+c]));
+    if (b !== undefined && confirm(`¿Borrar el Salmo del ${fechaBonita(estado.rondas[+b].fecha)}? Dejará de contar en el historial.`)) {
+      estado.rondas.splice(+b, 1);
+      guardar(); pintarTodo();
+    }
+  });
+
+  // ---------- Participantes ----------
+  function pintarParticipantes() {
+    $('#listaParticipantes').innerHTML = alfabetico(estado.participantes).map(p => `
+      <li><input type="text" value="${esc(p.nombre)}" data-renombrar="${p.id}">
+        <label class="inline"><input type="checkbox" data-activo="${p.id}" ${p.activo ? 'checked' : ''}> en el grupo</label>
+        <span class="muted">${personas(p.nombre)} pers.</span></li>`).join('');
+  }
+  $('#listaParticipantes').addEventListener('change', e => {
+    const p = estado.participantes.find(x => x.id === (e.target.dataset.renombrar || e.target.dataset.activo));
+    if (!p) return;
+    if (e.target.dataset.renombrar) {
+      const n = e.target.value.trim();
+      if (n) p.nombre = n; else e.target.value = p.nombre;
+    } else p.activo = e.target.checked;
+    guardar(); pintarTodo();
+  });
+  $('#btnAnadir').addEventListener('click', () => {
+    const n = $('#nuevoNombre').value.trim();
+    if (!n) return;
+    estado.participantes.push({ id: 'p' + estado.siguienteId++, nombre: n, activo: true });
+    $('#nuevoNombre').value = '';
+    guardar(); pintarTodo();
+  });
+  $('#nuevoNombre').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btnAnadir').click(); });
+
+  // ---------- Ventana Agregar/Quitar ----------
+  const haParticipado = (id) => estado.rondas.some(r => r.grupos.some(g => g.includes(id)));
+  function pintarGestion() {
+    const act = activos(), bajas = alfabetico(estado.participantes.filter(p => !p.activo));
+    $('#gestNumActivos').textContent = act.length;
+    $('#gestActivos').innerHTML = act.map(p =>
+      `<li><span>${esc(p.nombre)}</span><button class="btn small danger" data-quitar="${p.id}">Quitar</button></li>`).join('');
+    $('#gestBajasWrap').hidden = !bajas.length;
+    $('#gestBajas').innerHTML = bajas.map(p =>
+      `<li><span class="muted">${esc(p.nombre)}</span><button class="btn small" data-volver="${p.id}">Volver a agregar</button></li>`).join('');
+  }
+  $('#btnGestionar').addEventListener('click', () => {
+    pintarGestion();
+    $('#dlgGestionar').showModal();
+    $('#gestNombre').focus();
+  });
+  $('#btnCerrarGestion').addEventListener('click', () => $('#dlgGestionar').close());
+  $('#dlgGestionar').addEventListener('close', pintarTodo);
+  $('#btnGestAnadir').addEventListener('click', () => {
+    const n = $('#gestNombre').value.trim();
+    if (!n) return;
+    const existe = estado.participantes.find(p => p.nombre.localeCompare(n, 'es', { sensitivity: 'base' }) === 0);
+    if (existe && existe.activo) { alert(`“${existe.nombre}” ya está en el grupo.`); return; }
+    if (existe) existe.activo = true;
+    else estado.participantes.push({ id: 'p' + estado.siguienteId++, nombre: n, activo: true });
+    $('#gestNombre').value = '';
+    guardar(); pintarGestion();
+    $('#gestNombre').focus();
+  });
+  $('#gestNombre').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btnGestAnadir').click(); });
+  $('#dlgGestionar').addEventListener('click', e => {
+    const q = e.target.dataset.quitar, v = e.target.dataset.volver;
+    if (q) {
+      const p = estado.participantes.find(x => x.id === q);
+      if (!confirm(`¿Quitar a ${p.nombre} del grupo?`)) return;
+      if (haParticipado(q)) p.activo = false; // se guarda su historial
+      else estado.participantes = estado.participantes.filter(x => x.id !== q); // nunca participó: se borra
+      ausentes.delete(q);
+      if (propuesta) {
+        propuesta.grupos = propuesta.grupos.map(g => g.filter(x => x !== q));
+      }
+    } else if (v) {
+      estado.participantes.find(x => x.id === v).activo = true;
+    } else return;
+    guardar(); pintarGestion();
+  });
+
+  // ---------- PDF ----------
+  let rondaPdf = null;
+  function abrirPdf(r) {
+    if (!r) return;
+    rondaPdf = r;
+    const n = estado.rondas.indexOf(r) + 1;
+    $('#pdfTema').value = r.tema || '';
+    $('#pdfCelebracion').value = r.celebracion || `${n}ª Celebración (Casas)`;
+    $('#pdfComunidad').value = estado.comunidad || '4ª Comunidad de Santa Eulalia';
+    $('#pdfCabeceras').innerHTML = r.grupos.map((g, gi) =>
+      `<input type="text" data-cab="${gi}" value="${esc((r.cabeceras && r.cabeceras[gi]) || 'Grupo ' + (gi + 1))}" title="${esc(g.map(nombreDe).join(', '))}">`).join('');
+    $('#dlgPdf').showModal();
+    $('#pdfTema').focus();
+  }
+  $('#btnCerrarPdf').addEventListener('click', () => $('#dlgPdf').close());
+  $('#btnPdfGenerar').addEventListener('click', () => {
+    const r = rondaPdf;
+    const tema = $('#pdfTema').value.trim();
+    if (!tema) { alert('Escribe el título del tema.'); $('#pdfTema').focus(); return; }
+    r.tema = tema;
+    r.celebracion = $('#pdfCelebracion').value.trim();
+    r.cabeceras = [...document.querySelectorAll('#pdfCabeceras input')].map(i => i.value.trim());
+    estado.comunidad = $('#pdfComunidad').value.trim();
+    guardar();
+    $('#dlgPdf').close();
+    pintarHistorial();
+    mostrarHoja(r);
+  });
+
+  function htmlHoja(r) {
+    const G = r.grupos.length;
+    const grupos = r.grupos.map(g => alfabetico(g.map(id => ({ nombre: nombreDe(id) }))).map(p => p.nombre));
+    const filas = Math.max(...grupos.map(g => g.length));
+    const cab = r.grupos.map((_, gi) => (r.cabeceras && r.cabeceras[gi]) || 'Grupo ' + (gi + 1));
+    const cuerpo = Array.from({ length: filas }, (_, f) =>
+      `<tr>${grupos.map(g => `<td>${g[f] ? esc(g[f]) : ''}</td>`).join('')}</tr>`).join('');
+    const totalPers = r.grupos.flat().reduce((s, id) => s + personas(nombreDe(id)), 0);
+    const pie = r.grupos.map(g => g.reduce((s, id) => s + personas(nombreDe(id)), 0));
+    const icono = document.querySelector('h1 .biblia').outerHTML;
+    return `<div class="hoja${G > 6 ? ' muchos' : ''}">
+      <div class="h-cab">
+        <div><div class="h-cel">${esc(r.celebracion || '')}</div><div class="h-fecha">${fechaCorta(r.fecha)}</div></div>
+        <div class="h-com">${esc(estado.comunidad || '')}${icono}</div>
+      </div>
+      <div class="h-filete"></div>
+      <div class="h-tema"><small>Tema</small><div class="h-titulo">${esc(r.tema)}</div></div>
+      <table>
+        <thead><tr>${cab.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+        <tbody>${cuerpo}</tbody>
+        <tfoot><tr>${pie.map(n => `<td>${n} personas</td>`).join('')}</tr></tfoot>
+      </table>
+      <div class="h-pie"><span>${G} grupos · ${totalPers} personas</span><span>${esc(estado.comunidad || '')}</span></div>
+    </div>`;
+  }
+
+  // Vista previa dentro de la propia app (funciona también instalada en el móvil, donde no hay ventanas nuevas).
+  let tituloOriginal = document.title;
+  function mostrarHoja(r) {
+    $('#pdfHoja').innerHTML = htmlHoja(r);
+    tituloOriginal = document.title;
+    // El título del documento es el nombre que el navegador propone para el PDF.
+    document.title = `${r.celebracion || 'Salmo'} ${fechaCorta(r.fecha)}`.replace(/[\/\\:*?"<>|]/g, '-');
+    const pagina = document.createElement('style');
+    pagina.id = 'estiloPagina';
+    pagina.textContent = '@page { size: A4 landscape; margin: 12mm; }';
+    document.head.appendChild(pagina);
+    document.body.classList.add('modo-pdf');
+    $('#vistaPdf').hidden = false;
+    ajustarHoja();
+  }
+  function ajustarHoja() {
+    const hoja = document.querySelector('#pdfHoja .hoja');
+    if (!hoja || $('#vistaPdf').hidden) return;
+    hoja.style.zoom = 1;
+    hoja.style.zoom = Math.min(1, (window.innerWidth - 24) / hoja.offsetWidth);
+  }
+  window.addEventListener('resize', ajustarHoja);
+  $('#btnCerrarVista').addEventListener('click', () => {
+    $('#vistaPdf').hidden = true;
+    document.body.classList.remove('modo-pdf');
+    document.getElementById('estiloPagina')?.remove();
+    document.title = tituloOriginal;
+  });
+  $('#btnImprimirPdf').addEventListener('click', () => window.print());
+
+  // ---------- Copia de seguridad ----------
+  $('#btnExportar').addEventListener('click', () => {
+    const nombre = `salmo-historial-${hoy()}.json`;
+    const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
+    // En el móvil se abre el menú Compartir (Guardar en Archivos, WhatsApp, correo…).
+    const archivo = new File([blob], nombre, { type: 'application/json' });
+    if (matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({ files: [archivo] })) {
+      navigator.share({ files: [archivo], title: 'Copia de Grupos de Salmo' }).catch(() => {});
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  $('#fileImport').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const lector = new FileReader();
+    lector.onload = () => {
+      try {
+        const s = JSON.parse(lector.result);
+        if (!Array.isArray(s.participantes) || !Array.isArray(s.rondas)) throw new Error('formato');
+        if (!confirm(`La copia tiene ${s.participantes.length} participantes y ${s.rondas.length} Salmos. ¿Reemplazar los datos actuales?`)) return;
+        estado = s;
+        estado.numGrupos = estado.numGrupos || 6;
+        estado.siguienteId = estado.siguienteId || estado.participantes.length + 1;
+        propuesta = null; ausentes = new Set();
+        guardar(); pintarTodo();
+        alert('Copia cargada.');
+      } catch (err) { alert('Ese archivo no parece una copia válida.'); }
+      finally { e.target.value = ''; }
+    };
+    lector.readAsText(f);
+  });
+  $('#btnBorrarTodo').addEventListener('click', () => {
+    if (!confirm('¿Seguro? Se borrará todo el historial y la lista de participantes. (Descarga antes una copia si quieres conservarlo).')) return;
+    estado = estadoInicial(); propuesta = null; ausentes = new Set();
+    guardar(); pintarTodo();
+  });
+
+  // ---------- Pintar ----------
+  function pintarTodo() {
+    $('#numGrupos').value = estado.numGrupos;
+    if (!$('#fecha').value) $('#fecha').value = hoy();
+    pintarAsistencia();
+    pintarPropuesta();
+    pintarMatriz();
+    pintarHistorial();
+    pintarParticipantes();
+  }
+  pintarTodo();
+
+  // ---------- App instalable ----------
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+  // Pide al navegador que no borre los datos guardados.
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+})();
+</script>
+</body>
+</html>
