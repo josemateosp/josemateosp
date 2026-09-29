@@ -296,6 +296,17 @@
       <p>Has entrado como <strong id="cuentaEmail"></strong>. <span id="cuentaEstado" class="muted"></span></p>
       <button class="btn" id="btnSalir">Cerrar sesión en este aparato</button>
     </div>
+    <div class="panel" id="panelReglas" hidden>
+      <h3 style="margin-top:0">⚠️ Falta dar permiso a tu usuario en Firestore</h3>
+      <p>Tu correo y contraseña son correctos, pero la regla de Firestore no deja entrar a tu usuario. Esta es la regla con <strong>tu UID ya puesto</strong>:</p>
+      <pre id="textoReglas" style="white-space:pre-wrap;word-break:break-all;background:#f6f4ef;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.85rem"></pre>
+      <div class="row"><button class="btn primary" id="btnCopiarReglas">📋 Copiar regla</button></div>
+      <ol style="margin-bottom:0">
+        <li>En Firebase: <strong>Firestore → Reglas</strong>.</li>
+        <li>Borra todo lo que haya, pega la regla copiada y pulsa <strong>Publicar</strong>.</li>
+        <li>Espera un minuto y vuelve a abrir la app.</li>
+      </ol>
+    </div>
   </section>
 </main>
 

@@ -39,13 +39,30 @@ function estadoNube(tipo, detalle) {
     error: ['error', '⚠️ ' + (detalle || 'Error con la nube')]
   };
   const [clase, texto] = textos[tipo];
+  if (tipo === 'ok') $('#panelReglas').hidden = true;
   $('#nubeLinea').hidden = false;
   $('#nubeLinea').innerHTML = `<span class="nube ${clase}">${texto}</span>`;
   $('#cuentaEstado').textContent = texto.replace(/^\S+\s/, '') + '.';
 }
+function reglasPara(uid) {
+  return `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == '${uid}';
+    }
+  }
+}`;
+}
 function mensajeError(err) {
   const c = (err && err.code) || '';
-  if (c === 'permission-denied') return 'Sin permiso: revisa que el UID de las reglas de Firestore es el tuyo';
+  if (c === 'permission-denied') {
+    // Muestra la regla correcta con el UID de quien ha entrado, lista para copiar.
+    $('#textoReglas').textContent = reglasPara(auth.currentUser ? auth.currentUser.uid : 'TU_UID');
+    $('#panelReglas').hidden = false;
+    return 'Sin permiso en Firestore: mira la pestaña “Copia de seguridad”';
+  }
   if (c === 'unavailable') return 'Sin conexión con la nube';
   return 'Error con la nube (' + (c || err) + ')';
 }
@@ -59,7 +76,7 @@ const resumen = (s) => `${s.rondas.length} Salmos y ${s.participantes.length} pa
 function subir(s) {
   estadoNube('subiendo');
   setDoc(ref, { json: JSON.stringify(s), actualizado: serverTimestamp() })
-    .then(() => estadoNube('ok'))
+    .then(() => { $('#panelReglas').hidden = true; estadoNube('ok'); })
     .catch(err => estadoNube('error', mensajeError(err)));
 }
 
@@ -167,6 +184,12 @@ $('#btnOlvido').addEventListener('click', async () => {
   } catch (err) {
     $('#accError').textContent = errorAcceso(err);
   }
+});
+
+$('#btnCopiarReglas').addEventListener('click', async () => {
+  const texto = $('#textoReglas').textContent;
+  try { await navigator.clipboard.writeText(texto); alert('Regla copiada. Pégala en Firestore → Reglas y pulsa Publicar.'); }
+  catch (e) { prompt('Copia este texto:', texto); }
 });
 
 $('#btnSinNube').addEventListener('click', () => { $('#acceso').hidden = true; });
