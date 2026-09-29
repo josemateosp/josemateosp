@@ -99,6 +99,23 @@
   .gest-list li:last-child { border-bottom: 0; }
   body { padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
 
+  /* Nube y acceso */
+  .nube { margin-left: auto; font-size: .78rem; font-weight: 500; color: var(--muted); background: #fff; border: 1px solid var(--line);
+    border-radius: 99px; padding: 3px 10px; white-space: nowrap; }
+  .nube.ok { color: var(--ok); }
+  .nube.error { color: var(--bad); }
+  #acceso { position: fixed; inset: 0; z-index: 60; background: var(--bg); display: flex; align-items: center; justify-content: center;
+    padding: calc(16px + env(safe-area-inset-top)) 16px 16px; overflow: auto; }
+  #acceso[hidden] { display: none; }
+  .acceso-caja { width: 100%; max-width: 360px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px 20px; text-align: center; }
+  .acceso-caja .biblia { width: 64px; height: 64px; }
+  .acceso-caja h2 { margin: 8px 0 4px; }
+  .acceso-caja label { display: block; text-align: left; font-weight: 600; margin: 12px 0 4px; }
+  .acceso-caja input { width: 100%; font-size: 16px; padding: 10px; }
+  .acceso-caja .btn.primary { width: 100%; margin-top: 16px; padding: 11px; }
+  .acc-error { color: var(--bad); min-height: 1.2em; margin: 10px 0 4px; font-size: .95rem; }
+  .enlace { background: none; border: 0; color: var(--accent); font: inherit; font-size: .95rem; cursor: pointer; padding: 6px; display: block; margin: 2px auto; }
+
   /* Móvil */
   @media (max-width: 640px) {
     header { padding: 14px 12px 0; }
@@ -160,6 +177,7 @@
 <body>
 <header>
   <h1><svg class="biblia" viewBox="0 0 64 64" aria-hidden="true"><rect x="15" y="8" width="41" height="50" rx="3" fill="#f1e4c3" stroke="#b08d57" stroke-width="1.5"/><path d="M19 56h35M19 53h35" stroke="#c9b48a" stroke-width="1"/><rect x="9" y="5" width="42" height="50" rx="4" fill="#5a1f1b"/><rect x="9" y="5" width="7" height="50" rx="3" fill="#3f1411"/><rect x="31" y="15" width="5" height="27" rx="1" fill="#d4af37"/><rect x="24" y="22" width="19" height="5" rx="1" fill="#d4af37"/><rect x="20" y="10" width="27" height="40" rx="2" fill="none" stroke="#d4af37" stroke-width="1" opacity=".6"/><path d="M42 55v8l3-2.5 3 2.5v-8z" fill="#b3261e"/></svg> Grupos de Salmo</h1>
+  <p class="sub" id="nubeLinea" hidden></p>
   <p class="sub">Genera los grupos del mes intentando que todos coincidáis con todos y que nadie repita más de la cuenta.</p>
   <nav id="tabs">
     <button data-tab="nueva" class="active">Nueva ronda</button>
@@ -265,16 +283,37 @@
   <section id="copia">
     <div class="panel">
       <h3 style="margin-top:0">Guardar y recuperar el historial</h3>
-      <p>Los datos se guardan automáticamente en este aparato (cada móvil u ordenador tiene los suyos). Aun así, <strong>descarga una copia de vez en cuando</strong>
-        (por ejemplo, después de cada Salmo): si borras los datos del navegador o cambias de ordenador, podrás recuperarlo todo con “Cargar copia”.</p>
+      <p>Con tu cuenta, los datos se guardan en la nube y se sincronizan solos entre tus aparatos. Aun así, <strong>descarga una copia de vez en cuando</strong>
+        (por ejemplo, después de cada Salmo). Con “Cargar copia” recuperas una copia descargada; si has entrado con tu cuenta, también se sube a la nube.</p>
       <div class="row">
         <button class="btn primary" id="btnExportar">⬇️ Descargar copia (.json)</button>
         <label class="btn">⬆️ Cargar copia<input type="file" id="fileImport" accept=".json,application/json" hidden></label>
         <button class="btn danger" id="btnBorrarTodo">Borrar todo</button>
       </div>
     </div>
+    <div class="panel" id="panelCuenta" hidden>
+      <h3 style="margin-top:0">☁️ Tu cuenta</h3>
+      <p>Has entrado como <strong id="cuentaEmail"></strong>. <span id="cuentaEstado" class="muted"></span></p>
+      <button class="btn" id="btnSalir">Cerrar sesión en este aparato</button>
+    </div>
   </section>
 </main>
+
+<div id="acceso" hidden>
+  <form class="acceso-caja" id="formAcceso" novalidate>
+    <div id="accIcono"></div>
+    <h2>Grupos de Salmo</h2>
+    <p class="muted" style="margin:0">Entra para ver tus datos en cualquier aparato.</p>
+    <label for="accEmail">Correo</label>
+    <input type="email" id="accEmail" autocomplete="username" inputmode="email" autocapitalize="off">
+    <label for="accPass">Contraseña</label>
+    <input type="password" id="accPass" autocomplete="current-password">
+    <button class="btn primary" type="submit" id="btnEntrar">Entrar</button>
+    <p class="acc-error" id="accError" role="alert"></p>
+    <button type="button" class="enlace" id="btnOlvido">¿Has olvidado la contraseña?</button>
+    <button type="button" class="enlace" id="btnSinNube" hidden>Seguir sin conexión con los datos de este aparato</button>
+  </form>
+</div>
 
 <div id="vistaPdf" hidden>
   <div class="pdf-barra">
@@ -313,8 +352,10 @@
     return estadoInicial();
   }
   function guardar() {
+    estado.modificado = Date.now();
     try { localStorage.setItem(KEY, JSON.stringify(estado)); }
     catch (e) { alert('No se han podido guardar los datos en el navegador. Descarga una copia de seguridad.'); }
+    if (window.__salmo.alGuardar) window.__salmo.alGuardar(estado); // sube a la nube (nube.js)
   }
   let estado = cargar();
   let propuesta = null;       // { grupos: [[id...]], fecha }
@@ -864,7 +905,7 @@
     lector.readAsText(f);
   });
   $('#btnBorrarTodo').addEventListener('click', () => {
-    if (!confirm('¿Seguro? Se borrará todo el historial y la lista de participantes. (Descarga antes una copia si quieres conservarlo).')) return;
+    if (!confirm('¿Seguro? Se borrará todo el historial y la lista de participantes (también en la nube y en tus otros aparatos). Descarga antes una copia si quieres conservarlo.')) return;
     estado = estadoInicial(); propuesta = null; ausentes = new Set();
     guardar(); pintarTodo();
   });
@@ -881,6 +922,26 @@
   }
   pintarTodo();
 
+  // ---------- Puente con la nube (nube.js) ----------
+  window.__salmo = {
+    obtener: () => estado,
+    // Sustituye los datos por los que llegan de la nube (sin volver a subirlos).
+    reemplazar(s) {
+      estado = s;
+      estado.numGrupos = estado.numGrupos || 6;
+      estado.siguienteId = estado.siguienteId || estado.participantes.length + 1;
+      if (propuesta) {
+        const ids = new Set(estado.participantes.filter(p => p.activo).map(p => p.id));
+        propuesta.grupos = propuesta.grupos.map(g => g.filter(id => ids.has(id)));
+      }
+      if (recienGuardada && !estado.rondas.includes(recienGuardada)) recienGuardada = null;
+      try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) { /* sin espacio */ }
+      pintarTodo();
+    },
+    borrarLocal() { try { localStorage.removeItem(KEY); } catch (e) { /* nada */ } },
+    alGuardar: null
+  };
+
   // ---------- App instalable ----------
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -889,5 +950,6 @@
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 })();
 </script>
+<script type="module" src="nube.js"></script>
 </body>
 </html>

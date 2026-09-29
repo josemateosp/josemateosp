@@ -12,7 +12,7 @@ Dirección: **https://josemateosp.github.io/josemateosp/** (cuando GitHub Pages 
 - **Android**: ábrela en **Chrome** → menú ⋮ → **Instalar aplicación** (o “Añadir a pantalla de inicio”).
 - **PC / Mac**: ábrela en Chrome o Edge → icono de instalar en la barra de direcciones (o úsala como página normal).
 
-La primera vez la lista está vacía: carga tu copia de seguridad o añade los participantes.
+La primera vez te pedirá tu correo y contraseña; después la sesión queda abierta en ese aparato.
 
 ## Cómo usarla
 
@@ -28,7 +28,12 @@ Pulsa **👥 Agregar/Quitar participantes** en Nueva ronda. Quien ya ha particip
 
 ## Dónde se guardan los datos
 
-En cada aparato por separado; no se sincronizan ni se suben a internet (la página es pública, pero los nombres y el historial solo están en tu aparato). Descarga una copia en **Copia de seguridad** después de cada Salmo: sirve para recuperar el historial o pasarlo a otro aparato (con **Cargar copia**).
+Al abrir la app se entra con correo y contraseña (una sola cuenta, creada en Firebase; la app no permite registrarse). Los datos se guardan en **Firebase (Firestore)** y se sincronizan solos entre todos tus aparatos; además se guarda una copia en cada aparato para que funcione sin conexión. La página es pública, pero los datos no: las reglas de Firestore solo dejan leer y escribir al UID de tu cuenta.
+
+Aun así, descarga de vez en cuando una copia en **Copia de seguridad**. Con **Cargar copia** se recupera (y se sube a la nube). **Cerrar sesión** borra los datos de ese aparato, que siguen en la nube.
+
+- Firebase: proyecto `casas-c8b5f` (plan Spark, gratuito). Usuario en *Authentication*, datos en *Firestore* → documento `datos/salmo`.
+- Si olvidas la contraseña: botón “¿Has olvidado la contraseña?” en la pantalla de acceso, o cámbiala en *Authentication → Usuarios*.
 
 ## Cómo decide los grupos
 
@@ -45,4 +50,7 @@ En GitHub: repositorio → **Settings** → **Pages** → en “Build and deploy
 ## Archivos
 
 - `index.html`: la app entera.
+- `nube.js`: entrada con contraseña y sincronización con Firebase (aquí está `firebaseConfig`, que no es secreto).
+- `firebase.js`: la librería de Firebase empaquetada, para no depender de otros servidores. Se regenera con
+  `npm i firebase esbuild && npx esbuild tools/firebase-entry.js --bundle --format=esm --minify --outfile=firebase.js`.
 - `manifest.webmanifest`, `sw.js`, `icons/`: lo que permite instalarla y usarla sin conexión.
