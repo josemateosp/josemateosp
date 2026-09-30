@@ -61,7 +61,7 @@ function mensajeError(err) {
     // Muestra la regla correcta con el UID de quien ha entrado, lista para copiar.
     $('#textoReglas').textContent = reglasPara(auth.currentUser ? auth.currentUser.uid : 'TU_UID');
     $('#panelReglas').hidden = false;
-    return 'Sin permiso en Firestore: mira la pestaña “Copia de seguridad”';
+    return 'Sin permiso en Firestore: entra en “Copia de seguridad”';
   }
   if (c === 'unavailable') return 'Sin conexión con la nube';
   return 'Error con la nube (' + (c || err) + ')';

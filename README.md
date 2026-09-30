@@ -16,7 +16,9 @@ La primera vez te pedirá tu correo y contraseña; después la sesión queda abi
 
 ## Cómo usarla
 
-1. En **Nueva ronda**: elige el número de grupos y la fecha, desmarca a quien no venga ese mes y pulsa **Generar grupos**.
+Al abrirla sale un **menú de inicio** con botones: Nueva Celebración, Historial, Quién con quién, Participantes y Copia de seguridad. Dentro de cada uno, **← Inicio** (o el gesto de “atrás” del móvil) vuelve al menú.
+
+1. En **Nueva Celebración**: elige el número de grupos y la fecha, desmarca a quien no venga ese mes y pulsa **Generar grupos**.
 2. Si quieres, mueve a alguien de grupo con su desplegable. Pulsa **Generar otra vez** para ver otra propuesta.
 3. Pulsa **Guardar esta ronda**. Solo las rondas guardadas cuentan en el historial.
 4. **📄 Generar PDF** (tras guardar, o desde el Historial): pide el título del tema, la celebración y el encabezado de cada grupo, y muestra la hoja lista para guardar como PDF o imprimir.
@@ -24,7 +26,7 @@ La primera vez te pedirá tu correo y contraseña; después la sesión queda abi
 
 ## Agregar o quitar participantes
 
-Pulsa **👥 Agregar/Quitar participantes** en Nueva ronda. Quien ya ha participado en alguna Celebración pasa a “Dados de baja” y conserva su historial (puedes volver a agregarlo); si nunca participó, se borra sin más.
+Pulsa **👥 Agregar/Quitar participantes** en Nueva Celebración o en Participantes. Quien ya ha participado en alguna Celebración pasa a “Dados de baja” y conserva su historial (puedes volver a agregarlo); si nunca participó, se borra sin más.
 
 ## Dónde se guardan los datos
 
