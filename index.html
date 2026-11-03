@@ -238,8 +238,8 @@
       <input type="text" id="pdfComunidad">
       <label class="campo">Encabezado de cada grupo <span class="muted" style="font-weight:400">(por ejemplo, quién lo acoge en casa)</span></label>
       <div class="cabeceras" id="pdfCabeceras"></div>
-      <p class="muted" style="font-size:.9rem">Verás la hoja y un botón para imprimir. En el ordenador, en “Destino” elige <strong>Guardar como PDF</strong>;
-        en el iPhone o Android, pulsa <strong>Compartir → Guardar en Archivos</strong> (o “Guardar como PDF”).</p>
+      <p class="muted" style="font-size:.9rem">Verás la hoja y el botón <strong>Guardar PDF</strong>: en el ordenador se descarga el archivo;
+        en el iPhone o Android se abre el menú Compartir para <strong>Guardar en Archivos</strong>, mandarlo por WhatsApp o imprimirlo.</p>
       <div class="row" style="justify-content:flex-end">
         <button class="btn primary" id="btnPdfGenerar">📄 Generar PDF</button>
       </div>
@@ -364,7 +364,8 @@
 
 <div id="vistaPdf" hidden>
   <div class="pdf-barra">
-    <button class="btn primary" id="btnImprimirPdf">📄 Guardar como PDF / Imprimir</button>
+    <button class="btn primary" id="btnGuardarPdf">📄 Guardar PDF</button>
+    <button class="btn" id="btnImprimirPdf">🖨️ Imprimir</button>
     <button class="btn" id="btnCerrarVista">Cerrar</button>
   </div>
   <div class="pdf-marco" id="pdfHoja"></div>
@@ -882,6 +883,112 @@
     mostrarHoja(r);
   });
 
+  // Datos comunes a la vista previa y al PDF.
+  function datosHoja(r) {
+    const grupos = r.grupos.map(g => alfabetico(g.map(id => ({ nombre: nombreDe(id) }))).map(p => p.nombre));
+    return {
+      grupos,
+      cab: r.grupos.map((_, gi) => (r.cabeceras && r.cabeceras[gi]) || 'Grupo ' + (gi + 1)),
+      pie: r.grupos.map(g => g.reduce((s, id) => s + personas(nombreDe(id)), 0)),
+      total: r.grupos.flat().reduce((s, id) => s + personas(nombreDe(id)), 0),
+      // Sin acentos ni "ª": algunos navegadores descartan los nombres de archivo con esos caracteres.
+      nombreArchivo: `${r.celebracion || 'Celebración'} ${fechaCorta(r.fecha)}`.replace(/[\/\\:*?"<>|]/g, '-')
+        .replace(/ª/g, 'a').replace(/º/g, 'o').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    };
+  }
+
+  // PDF de verdad (A4 apaisado) dibujado con jsPDF, con el mismo diseño que la vista previa.
+  // Así se puede guardar o compartir también en el iPhone, donde la app instalada no puede imprimir.
+  async function crearPdf(r) {
+    const { jsPDF } = await import('./jspdf.js');
+    const d = datosHoja(r), G = d.grupos.length;
+    const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const W = 297, M = 14, ancho = W - 2 * M;
+    const GRANATE = [90, 31, 27], ORO = [176, 141, 87], TINTA = [43, 33, 28], SUAVE = [138, 106, 74];
+    const color = (c) => pdf.setTextColor(...c);
+
+    // Encabezado
+    pdf.setFont('times', 'bold'); pdf.setFontSize(12.5); color(GRANATE);
+    pdf.text((r.celebracion || '').toUpperCase(), M, 20, { charSpace: 0.3 });
+    pdf.setFontSize(21); color(TINTA);
+    pdf.text(fechaCorta(r.fecha), M, 30);
+    // Biblia (granate con cruz dorada) y comunidad a la derecha
+    const bx = W - M - 8, by = 21;
+    pdf.setFillColor(241, 228, 195); pdf.setDrawColor(...ORO); pdf.setLineWidth(0.3);
+    pdf.roundedRect(bx + 1.2, by + 0.8, 6.8, 9.6, 0.6, 0.6, 'FD');
+    pdf.setFillColor(...GRANATE); pdf.roundedRect(bx, by, 6.8, 9.6, 0.7, 0.7, 'F');
+    pdf.setFillColor(63, 20, 17); pdf.rect(bx, by, 1.1, 9.6, 'F');
+    pdf.setFillColor(212, 175, 55); pdf.rect(bx + 3.35, by + 1.8, 0.9, 4.6, 'F'); pdf.rect(bx + 2.2, by + 3, 3.2, 0.9, 'F');
+    pdf.setFont('times', 'italic'); pdf.setFontSize(14); color(GRANATE);
+    pdf.text(estado.comunidad || '', bx - 3, 29, { align: 'right' });
+    pdf.setDrawColor(...GRANATE); pdf.setLineWidth(0.7); pdf.line(M, 34, W - M, 34);
+    pdf.setDrawColor(...ORO); pdf.setLineWidth(0.3); pdf.line(M, 35.6, W - M, 35.6);
+
+    // Tema
+    pdf.setFont('times', 'bold'); pdf.setFontSize(G > 6 ? 16 : 18);
+    const lineasTema = pdf.splitTextToSize(r.tema || '', ancho - 16);
+    const altoTema = 13 + lineasTema.length * 7.2;
+    pdf.setFillColor(246, 231, 218); pdf.setDrawColor(227, 205, 183); pdf.setLineWidth(0.3);
+    pdf.roundedRect(M, 43, ancho, altoTema, 2, 2, 'FD');
+    pdf.setFont('times', 'normal'); pdf.setFontSize(8.5); color(SUAVE);
+    pdf.text('TEMA', W / 2, 50, { align: 'center', charSpace: 1.5 });
+    pdf.setFont('times', 'bold'); pdf.setFontSize(G > 6 ? 16 : 18); color(TINTA);
+    pdf.text(lineasTema, W / 2, 57.5, { align: 'center', lineHeightFactor: 1.15 });
+
+    // Tabla: una columna por grupo
+    const hueco = 3, colW = (ancho - (G - 1) * hueco) / G;
+    const yCab = 43 + altoTema + 8, altoCab = 12;
+    const filas = Math.max(...d.grupos.map(g => g.length));
+    const tamNombre = G > 6 ? 10 : 11.5;
+    pdf.setFont('times', 'normal'); pdf.setFontSize(tamNombre);
+    const lineas = d.grupos.map(g => g.map(n => pdf.splitTextToSize(n, colW - 4)));
+    const altosFila = Array.from({ length: filas }, (_, f) => Math.max(1, ...lineas.map(c => (c[f] || ['']).length)));
+    const disponible = 196 - (yCab + altoCab) - 8;
+    let alto1 = 5.2, extra = 6;
+    const necesario = altosFila.reduce((s, n) => s + n * alto1 + extra, 0);
+    if (necesario > disponible) { const k = disponible / necesario; alto1 *= k; extra *= k; }
+
+    d.grupos.forEach((g, gi) => {
+      const x = M + gi * (colW + hueco);
+      // Cabecera
+      pdf.setFillColor(...GRANATE);
+      pdf.roundedRect(x, yCab, colW, altoCab, 1.5, 1.5, 'F');
+      pdf.rect(x, yCab + altoCab - 2, colW, 2, 'F');
+      pdf.setFont('times', 'bold'); let tc = G > 6 ? 10.5 : 12; pdf.setFontSize(tc);
+      const tituloCab = d.cab[gi].toUpperCase();
+      while (tc > 7 && pdf.getTextWidth(tituloCab) + tituloCab.length * 0.4 > colW - 3) { tc -= 0.5; pdf.setFontSize(tc); }
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(tituloCab, x + colW / 2, yCab + altoCab / 2 + 1.5, { align: 'center', charSpace: 0.4 });
+      // Filas
+      let y = yCab + altoCab;
+      pdf.setFont('times', 'normal'); pdf.setFontSize(tamNombre); color(TINTA);
+      altosFila.forEach((n, f) => {
+        const h = n * alto1 + extra;
+        if (f % 2) { pdf.setFillColor(251, 246, 239); pdf.rect(x, y, colW, h, 'F'); }
+        pdf.setDrawColor(230, 217, 200); pdf.setLineWidth(0.25);
+        pdf.line(x, y, x, y + h); pdf.line(x + colW, y, x + colW, y + h);
+        if (f < filas - 1) { pdf.setDrawColor(239, 229, 216); pdf.line(x, y + h, x + colW, y + h); }
+        const texto = lineas[gi][f];
+        if (texto) {
+          const yTexto = y + h / 2 - (texto.length - 1) * alto1 / 2 + 1.3;
+          pdf.text(texto, x + colW / 2, yTexto, { align: 'center', lineHeightFactor: alto1 / (tamNombre * 0.3528) });
+        }
+        y += h;
+      });
+      pdf.setDrawColor(...ORO); pdf.setLineWidth(0.6); pdf.line(x, y, x + colW, y);
+      pdf.setFont('times', 'italic'); pdf.setFontSize(8.5); color(SUAVE);
+      pdf.text(`${d.pie[gi]} personas`, x + colW / 2, y + 5, { align: 'center' });
+    });
+
+    // Pie de página
+    pdf.setFont('times', 'normal'); pdf.setFontSize(8.5); color(SUAVE);
+    pdf.text(`${G} grupos · ${d.total} personas`, M, 200);
+    pdf.text(estado.comunidad || '', W - M, 200, { align: 'right' });
+
+    pdf.setProperties({ title: d.nombreArchivo });
+    return new File([pdf.output('blob')], d.nombreArchivo + '.pdf', { type: 'application/pdf' });
+  }
+
   function htmlHoja(r) {
     const G = r.grupos.length;
     const grupos = r.grupos.map(g => alfabetico(g.map(id => ({ nombre: nombreDe(id) }))).map(p => p.nombre));
@@ -910,7 +1017,16 @@
 
   // Vista previa dentro de la propia app (funciona también instalada en el móvil, donde no hay ventanas nuevas).
   let tituloOriginal = document.title;
+  let pdfListo = null;   // { ronda, archivo } preparado al abrir la vista, para compartir al instante (iOS lo exige)
+  function prepararPdf(r) {
+    const promesa = crearPdf(r).then(archivo => (pdfListo = { ronda: r, archivo }));
+    promesa.catch(() => {});
+    return promesa;
+  }
   function mostrarHoja(r) {
+    pdfListo = null;
+    prepararPdf(r);
+    rondaVista = r;
     $('#pdfHoja').innerHTML = htmlHoja(r);
     tituloOriginal = document.title;
     // El título del documento es el nombre que el navegador propone para el PDF.
@@ -937,6 +1053,40 @@
     document.title = tituloOriginal;
   });
   $('#btnImprimirPdf').addEventListener('click', () => window.print());
+  // En el iPhone con la app instalada no se puede imprimir: el botón Imprimir se oculta (se imprime desde Compartir).
+  const esAppIOS = window.navigator.standalone === true;
+  if (esAppIOS) $('#btnImprimirPdf').hidden = true;
+  let rondaVista = null;
+
+  $('#btnGuardarPdf').addEventListener('click', async () => {
+    const btn = $('#btnGuardarPdf');
+    try {
+      if (!pdfListo || pdfListo.ronda !== rondaVista) {
+        btn.disabled = true; btn.textContent = 'Preparando…';
+        await prepararPdf(rondaVista);
+        btn.disabled = false; btn.textContent = '📄 Guardar PDF';
+      }
+      const archivo = pdfListo.archivo;
+      const movil = matchMedia('(pointer: coarse)').matches;
+      if (movil && navigator.canShare && navigator.canShare({ files: [archivo] })) {
+        try {
+          await navigator.share({ files: [archivo], title: archivo.name.replace(/\.pdf$/, '') });
+        } catch (err) {
+          // iOS pide que se comparta justo al tocar; si se perdió el toque, basta con pulsar otra vez.
+          if (err && err.name === 'NotAllowedError') alert('El PDF ya está listo. Pulsa otra vez “Guardar PDF”.');
+        }
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(archivo);
+      a.download = archivo.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    } catch (err) {
+      btn.disabled = false; btn.textContent = '📄 Guardar PDF';
+      alert('No se ha podido crear el PDF (' + (err && err.message || err) + '). Prueba a usar “Imprimir”.');
+    }
+  });
 
   // ---------- Copia de seguridad ----------
   $('#btnExportar').addEventListener('click', () => {

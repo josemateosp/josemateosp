@@ -1,11 +1,12 @@
 // Guarda la app en el aparato para que funcione sin internet.
 // Sirve siempre la copia guardada y, si hay conexión, la actualiza para la próxima vez.
-const CACHE = 'salmo-v7';
+const CACHE = 'salmo-v8';
 const ARCHIVOS = [
   './',
   'index.html',
   'nube.js',
   'firebase.js',
+  'jspdf.js',
   'manifest.webmanifest',
   'icons/icon-192.png',
   'icons/icon-512.png',

@@ -21,7 +21,7 @@ Al abrirla sale un **menú de inicio** con botones: Nueva Celebración, Historia
 1. En **Nueva Celebración**: elige el número de grupos y la fecha, desmarca a quien no venga ese mes y pulsa **Generar grupos**.
 2. Si quieres, mueve a alguien de grupo con su desplegable. Pulsa **Generar otra vez** para ver otra propuesta.
 3. Pulsa **Guardar esta ronda**. Solo las rondas guardadas cuentan en el historial.
-4. **📄 Generar PDF** (tras guardar, o desde el Historial): pide el título del tema, la celebración y el encabezado de cada grupo, y muestra la hoja lista para guardar como PDF o imprimir.
+4. **📄 Generar PDF** (tras guardar, o desde el Historial): pide el título del tema, la celebración y el encabezado de cada grupo, y muestra la hoja con **Guardar PDF** (en el móvil abre el menú Compartir: Guardar en Archivos, WhatsApp, imprimir…).
 5. **Copiar para WhatsApp** te deja el reparto listo para pegarlo en el chat.
 
 ## Agregar o quitar participantes
@@ -55,4 +55,5 @@ En GitHub: repositorio → **Settings** → **Pages** → en “Build and deploy
 - `nube.js`: entrada con contraseña y sincronización con Firebase (aquí está `firebaseConfig`, que no es secreto).
 - `firebase.js`: la librería de Firebase empaquetada, para no depender de otros servidores. Se regenera con
   `npm i firebase esbuild && npx esbuild tools/firebase-entry.js --bundle --format=esm --minify --outfile=firebase.js`.
+- `jspdf.js`: la librería jsPDF empaquetada, con la que se crea el PDF (también en el iPhone). Se regenera igual, desde `tools/jspdf-entry.js` y con `--external:html2canvas --external:dompurify --external:canvg`.
 - `manifest.webmanifest`, `sw.js`, `icons/`: lo que permite instalarla y usarla sin conexión.
