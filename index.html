@@ -256,6 +256,7 @@
       <button class="tile" data-ir-a="participantes"><span class="t-ico">👥</span><span class="t-tit">Participantes</span><span class="t-sub" id="subParticipantes"></span></button>
       <button class="tile" data-ir-a="copia"><span class="t-ico">💾</span><span class="t-tit">Copia de seguridad</span><span class="t-sub">Descargar, cargar y tu cuenta</span></button>
     </div>
+    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 9 · 3/11/2026</p>
   </section>
 
   <!-- NUEVA RONDA -->
@@ -331,6 +332,11 @@
       <h3 style="margin-top:0">☁️ Tu cuenta</h3>
       <p>Has entrado como <strong id="cuentaEmail"></strong>. <span id="cuentaEstado" class="muted"></span></p>
       <button class="btn" id="btnSalir">Cerrar sesión en este aparato</button>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">🔄 Actualizar la app</h3>
+      <p>Tienes la <strong>versión 9 · 3/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
+      <button class="btn" id="btnActualizar">🔄 Buscar actualización</button>
     </div>
     <div class="panel" id="panelReglas" hidden>
       <h3 style="margin-top:0">⚠️ Falta dar permiso a tu usuario en Firestore</h3>
@@ -1123,6 +1129,14 @@
       finally { e.target.value = ''; }
     };
     lector.readAsText(f);
+  });
+  $('#btnActualizar').addEventListener('click', async () => {
+    $('#btnActualizar').textContent = 'Actualizando…';
+    try {
+      const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+      if (reg) await reg.update();
+    } catch (e) { /* sin conexión: se recarga igualmente */ }
+    location.reload();
   });
   $('#btnBorrarTodo').addEventListener('click', () => {
     if (!confirm('¿Seguro? Se borrará todo el historial y la lista de participantes (también en la nube y en tus otros aparatos). Descarga antes una copia si quieres conservarlo.')) return;

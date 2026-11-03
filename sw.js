@@ -1,6 +1,7 @@
 // Guarda la app en el aparato para que funcione sin internet.
-// Sirve siempre la copia guardada y, si hay conexión, la actualiza para la próxima vez.
-const CACHE = 'salmo-v8';
+// Con conexión, pide siempre la última versión (así los cambios llegan al abrir la app);
+// sin conexión, o si la red tarda demasiado, usa la copia guardada.
+const CACHE = 'salmo-v9';
 const ARCHIVOS = [
   './',
   'index.html',
@@ -13,9 +14,13 @@ const ARCHIVOS = [
   'icons/maskable-512.png',
   'icons/apple-touch-icon.png'
 ];
+const ESPERA_MAXIMA = 4000; // ms antes de recurrir a la copia guardada
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
+  // cache: 'reload' evita que se guarde una versión antigua que el navegador tuviera en su caché HTTP.
+  e.waitUntil(caches.open(CACHE)
+    .then(c => c.addAll(ARCHIVOS.map(u => new Request(u, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -29,10 +34,13 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   e.respondWith(caches.open(CACHE).then(async cache => {
     const guardada = await cache.match(req, { ignoreSearch: true });
-    const red = fetch(req).then(res => {
+    // 'no-cache' pregunta al servidor si hay versión nueva (si no la hay, la respuesta es mínima).
+    const red = fetch(req, { cache: 'no-cache' }).then(res => {
       if (res.ok) cache.put(req, res.clone());
       return res;
-    }).catch(() => guardada);
-    return guardada || red;
+    });
+    if (!guardada) return red;
+    const limite = new Promise(r => setTimeout(() => r(guardada), ESPERA_MAXIMA));
+    return Promise.race([red.catch(() => guardada), limite]);
   }));
 });
