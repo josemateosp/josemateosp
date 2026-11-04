@@ -142,6 +142,7 @@
   .org > label { margin: 6px 16px 0 0; }
   .prep-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 6px; break-inside: avoid; }
   .prep-item .juntos { font-size: .85rem; color: var(--muted); }
+  .reparto { margin: 14px 0 12px; padding: 10px 12px; border-radius: 8px; background: var(--soft); }
   .solo-sesion { display: none; }
   body.con-sesion .solo-sesion { display: block; }
   .copias-lista { list-style: none; margin: 0 0 10px; padding: 0; }
@@ -307,7 +308,7 @@
       <button class="tile" data-ir-a="participantes"><span class="t-ico">👥</span><span class="t-tit">Participantes</span><span class="t-sub" id="subParticipantes"></span></button>
       <button class="tile" data-ir-a="copia"><span class="t-ico">⚙️</span><span class="t-tit">Ajustes y seguridad</span><span class="t-sub">Copias, contraseña y tu cuenta</span></button>
     </div>
-    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 10 · 4/11/2026</p>
+    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 11 · 4/11/2026</p>
   </section>
 
   <!-- NUEVA RONDA -->
@@ -315,10 +316,7 @@
     <div class="barra-sec"><button class="btn volver" data-ir-a="inicio">← Inicio</button><h2>Nueva Celebración</h2></div>
     <div class="panel">
       <div class="row">
-        <label class="inline">Número de grupos <input type="number" id="numGrupos" min="1" max="20"></label>
         <label class="inline">Fecha Celebración <input type="date" id="fecha"></label>
-        <button class="btn primary" id="btnGenerar">✨ Generar grupos</button>
-        <button class="btn" id="btnGestionar">👥 Agregar/Quitar participantes</button>
       </div>
       <details style="margin-top:10px">
         <summary>¿Quién viene este mes? <span class="muted" id="asistResumen"></span></summary>
@@ -328,12 +326,20 @@
         <strong>¿Cómo se organiza esta Celebración?</strong><br>
         <label class="inline"><input type="radio" name="modo" value="todos" checked> Se reparten todos</label>
         <label class="inline"><input type="radio" name="modo" value="prepara"> Hay un grupo que prepara y se reparte</label>
+        <div id="todosBox" style="margin-top:10px">
+          <label class="inline">¿Cuántos grupos? <input type="number" id="numGrupos" min="1" max="20"></label>
+        </div>
         <div id="preparaBox" hidden style="margin-top:10px">
           <p class="muted" style="margin:0 0 8px;font-size:.9rem">Marca quién prepara. Cada matrimonio se separa: uno va a una casa y el otro a otra.
             Si esta vez van juntos, marca “van juntos”. Quien prepara no cuenta en “Quién con quién”.</p>
           <div class="asist" id="listaPrepara"></div>
           <p id="casasResumen" style="margin:8px 0 0"></p>
         </div>
+      </div>
+      <p class="reparto" id="resumenReparto"></p>
+      <div class="row">
+        <button class="btn primary" id="btnGenerar">✨ Generar grupos</button>
+        <button class="btn" id="btnGestionar">👥 Agregar/Quitar participantes</button>
       </div>
     </div>
 
@@ -415,7 +421,7 @@
     </div>
     <div class="panel">
       <h3 style="margin-top:0">🔄 Actualizar la app</h3>
-      <p>Tienes la <strong>versión 10 · 4/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
+      <p>Tienes la <strong>versión 11 · 4/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
       <button class="btn" id="btnActualizar">🔄 Buscar actualización</button>
     </div>
     <div class="panel">
@@ -677,20 +683,38 @@
     });
     return casas;
   }
+  // Resumen antes de generar: cuántos grupos saldrán y de cuántas personas cada uno.
+  function pintarReparto() {
+    const vienen = activos().filter(p => !ausentes.has(p.id));
+    const total = vienen.reduce((s, p) => s + personas(p.nombre), 0);
+    let G;
+    if (modo === 'prepara') {
+      G = casasPrepara().length;
+      if (!G) { $('#resumenReparto').innerHTML = '👉 Marca quién prepara para ver cuántos grupos saldrán.'; return; }
+    } else {
+      G = Math.max(1, Math.min(estado.numGrupos, vienen.length));
+    }
+    if (!total) { $('#resumenReparto').innerHTML = 'No hay nadie marcado en “¿Quién viene este mes?”.'; return; }
+    const base = Math.floor(total / G), resto = total % G;
+    const tam = resto ? `${base} o ${base + 1}` : `${base}`;
+    $('#resumenReparto').innerHTML = `📋 Saldrán <strong>${G} ${G === 1 ? 'grupo' : 'grupos'}</strong> de <strong>${tam} personas</strong>${G === 1 ? '' : ' cada uno'}
+      <span class="muted">(${total} personas en total${modo === 'prepara' ? ', contando a quienes preparan' : ''}).
+      Como los matrimonios van juntos, algún grupo puede tener una persona más o menos.</span>`;
+  }
   function pintarPrepara() {
     $('#preparaBox').hidden = modo !== 'prepara';
-    $('#numGrupos').disabled = modo === 'prepara';
-    if (modo !== 'prepara') { $('#numGrupos').value = estado.numGrupos; return; }
+    $('#todosBox').hidden = modo !== 'todos';
+    if (modo !== 'prepara') { pintarReparto(); return; }
     $('#listaPrepara').innerHTML = activos().filter(p => !ausentes.has(p.id)).map(p => {
       const marcado = preparan.has(p.id), pareja = nombresDe(p.nombre).length > 1;
       return `<div class="prep-item"><label class="inline"><input type="checkbox" data-prepara="${p.id}" ${marcado ? 'checked' : ''}> ${esc(p.nombre)}</label>
         ${marcado && pareja ? `<label class="inline juntos"><input type="checkbox" data-juntos="${p.id}" ${preparan.get(p.id).juntos ? 'checked' : ''}> van juntos</label>` : ''}</div>`;
     }).join('');
     const casas = casasPrepara();
-    $('#numGrupos').value = casas.length;
+    pintarReparto();
     $('#casasResumen').innerHTML = casas.length
       ? `🏠 <strong>${casas.length} ${casas.length === 1 ? 'casa' : 'casas'}</strong>: ${casas.map(c => esc(c.nombre)).join(', ')}`
-      : '<span class="muted">Todavía no has marcado a nadie.</span>';
+      : '';
   }
   document.querySelectorAll('input[name=modo]').forEach(r => r.addEventListener('change', () => {
     modo = document.querySelector('input[name=modo]:checked').value;
@@ -703,9 +727,14 @@
     pintarPrepara();
   });
 
+  $('#numGrupos').addEventListener('input', e => {
+    const v = parseInt(e.target.value, 10);
+    if (v >= 1 && v <= 20) { estado.numGrupos = v; pintarReparto(); }
+  });
   $('#numGrupos').addEventListener('change', e => {
     const v = parseInt(e.target.value, 10);
     if (v >= 1) { estado.numGrupos = v; guardar(); }
+    else e.target.value = estado.numGrupos;
   });
 
   $('#btnGenerar').addEventListener('click', () => {
