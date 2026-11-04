@@ -28,6 +28,8 @@
     --input: #ffffff;
     --soft: #eeeeee;
     --chip-falta: #fde8e1;
+    --sombra: #e7e2d8;
+    --sombra-borde: #d2cabc;
   }
   /* Modo oscuro: se activa solo si el móvil u ordenador lo tiene activado. El PDF siempre sale en blanco. */
   @media (prefers-color-scheme: dark) {
@@ -43,6 +45,8 @@
       --input: #1f1c19;
       --soft: #332f29;
       --chip-falta: #4d2b22;
+      --sombra: #36312a;
+      --sombra-borde: #4f483e;
     }
   }
   * { box-sizing: border-box; }
@@ -104,10 +108,12 @@
   /* Solo la mitad de abajo (la tabla es simétrica). Bordes "separados" para que nada asome tras los nombres fijos. */
   .matriz { border-collapse: separate; border-spacing: 0; transform-origin: 0 0; }
   .matriz th, .matriz td { border: 0; padding: 2px 3px; text-align: center; font-size: .76rem; min-width: 23px; height: 23px; }
-  .matriz td.dentro { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .matriz td.diag { border-top: 1px solid var(--line); }
+  .matriz td { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  /* La diagonal y la mitad de arriba (repetida) van sombreadas: los números solo están en la mitad de abajo. */
+  .matriz td.sombra { background: var(--sombra); border-color: var(--sombra-borde); }
   .matriz thead th { position: sticky; top: 0; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; height: 138px; padding: 6px 2px;
-    text-align: left; z-index: 2; background: var(--card); font-weight: 600; border-left: 1px solid var(--line); }
+    text-align: left; z-index: 2; background: var(--card); font-weight: 600; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+  .matriz thead tr th:last-child { border-right: 1px solid var(--line); }
   .matriz thead th.esquina { left: 0; z-index: 3; writing-mode: horizontal-tb; transform: none; border: 0; }
   .matriz tbody th { position: sticky; left: 0; background: var(--card); text-align: left; white-space: nowrap; padding: 2px 8px 2px 4px;
     font-weight: 600; z-index: 1; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -314,7 +320,7 @@
       <button class="tile" data-ir-a="participantes"><span class="t-ico">👥</span><span class="t-tit">Participantes</span><span class="t-sub" id="subParticipantes"></span></button>
       <button class="tile" data-ir-a="copia"><span class="t-ico">⚙️</span><span class="t-tit">Ajustes y seguridad</span><span class="t-sub">Copias, contraseña y tu cuenta</span></button>
     </div>
-    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 13 · 4/11/2026</p>
+    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 14 · 4/11/2026</p>
   </section>
 
   <!-- NUEVA RONDA -->
@@ -427,7 +433,7 @@
     </div>
     <div class="panel">
       <h3 style="margin-top:0">🔄 Actualizar la app</h3>
-      <p>Tienes la <strong>versión 13 · 4/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
+      <p>Tienes la <strong>versión 14 · 4/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
       <button class="btn" id="btnActualizar">🔄 Buscar actualización</button>
     </div>
     <div class="panel">
@@ -926,15 +932,15 @@
       const t = maxV > 1 ? (v - 1) / (maxV - 1) : 0;
       return `hsl(${140 - 130 * t}, 55%, ${82 - 22 * t}%)`;
     };
-    // La tabla es simétrica: solo se muestra la mitad de abajo (cada pareja una vez), en escalera.
-    const filas = ps.slice(1), columnas = ps.slice(0, -1);
+    // La tabla es simétrica: los números solo van en la mitad de abajo (cada pareja una vez);
+    // la diagonal (uno consigo mismo) y la mitad de arriba se sombrean.
     let html = '<thead><tr><th class="esquina"></th>' +
-      columnas.map(p => `<th>${esc(p.nombre)}</th>`).join('') + '</tr></thead><tbody>';
-    filas.forEach((a, i) => {
-      html += `<tr><th>${esc(a.nombre)}</th>` + columnas.map((b, j) => {
-        if (j > i) return '<td></td>';
+      ps.map(p => `<th>${esc(p.nombre)}</th>`).join('') + '</tr></thead><tbody>';
+    ps.forEach((a, i) => {
+      html += `<tr><th>${esc(a.nombre)}</th>` + ps.map((b, j) => {
+        if (j >= i) return '<td class="sombra"></td>';
         const v = veces[clave(a.id, b.id)] || 0;
-        return `<td class="dentro${j === i ? ' diag' : ''}" style="background:${color(v)};${v ? 'color:#22201c' : ''}" title="${esc(a.nombre)} – ${esc(b.nombre)}">${v || ''}</td>`;
+        return `<td style="background:${color(v)};${v ? 'color:#22201c' : ''}" title="${esc(a.nombre)} – ${esc(b.nombre)}">${v || ''}</td>`;
       }).join('') + '</tr>';
     });
     $('#tablaMatriz').innerHTML = html + '</tbody>';
