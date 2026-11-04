@@ -310,6 +310,19 @@
     </form>
   </dialog>
 
+  <dialog id="dlgCasas">
+    <div class="dlg-head"><h3 id="casasTitulo">🏠 Quién preparó</h3>
+      <button class="btn small" id="btnCerrarCasas" aria-label="Cerrar">✕</button></div>
+    <div class="dlg-body">
+      <p class="muted" style="margin-top:0;font-size:.9rem">Elige quién preparó en cada grupo. Solo salen quienes no están repartidos en esa Celebración.
+        Si dejas todos en “Nadie”, la Celebración queda como “Grupo 1, Grupo 2…”. Esto no cambia “Quién con quién”.</p>
+      <div id="casasCampos"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:12px">
+        <button class="btn primary" id="btnGuardarCasas">Guardar</button>
+      </div>
+    </div>
+  </dialog>
+
   <!-- INICIO -->
   <section id="inicio" class="active">
     <div id="avisoInicio"></div>
@@ -320,7 +333,7 @@
       <button class="tile" data-ir-a="participantes"><span class="t-ico">👥</span><span class="t-tit">Participantes</span><span class="t-sub" id="subParticipantes"></span></button>
       <button class="tile" data-ir-a="copia"><span class="t-ico">⚙️</span><span class="t-tit">Ajustes y seguridad</span><span class="t-sub">Copias, contraseña y tu cuenta</span></button>
     </div>
-    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 14 · 4/11/2026</p>
+    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 15 · 4/11/2026</p>
   </section>
 
   <!-- NUEVA RONDA -->
@@ -433,7 +446,7 @@
     </div>
     <div class="panel">
       <h3 style="margin-top:0">🔄 Actualizar la app</h3>
-      <p>Tienes la <strong>versión 14 · 4/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
+      <p>Tienes la <strong>versión 15 · 4/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
       <button class="btn" id="btnActualizar">🔄 Buscar actualización</button>
     </div>
     <div class="panel">
@@ -991,19 +1004,72 @@
       <tr><td style="white-space:nowrap"><strong>${fechaBonita(r.fecha)}</strong></td>
       <td>${r.grupos.map((g, gi) => `<div><span class="muted">${r.casas ? '🏠 ' + esc(r.casas[gi].nombre) : 'G' + (gi + 1)}:</span> ${g.map(id => esc(nombreDe(id))).join(' · ')}</div>`).join('')}</td>
       <td style="white-space:nowrap">
+        <button class="btn small" data-casas="${ri}" title="Indicar quién preparó">🏠</button>
         <button class="btn small" data-pdf="${ri}" title="Generar PDF">📄 PDF</button>
         <button class="btn small" data-copiar="${ri}" title="Copiar para WhatsApp">📋</button>
         <button class="btn small danger" data-borrar="${ri}">Borrar</button></td></tr>`).join('');
     $('#listaHistorial').innerHTML = `<table><thead><tr><th>Fecha</th><th>Grupos</th><th></th></tr></thead><tbody>${filas}</tbody></table>`;
   }
   $('#listaHistorial').addEventListener('click', e => {
-    const b = e.target.dataset.borrar, c = e.target.dataset.copiar, d = e.target.dataset.pdf;
+    const b = e.target.dataset.borrar, c = e.target.dataset.copiar, d = e.target.dataset.pdf, h = e.target.dataset.casas;
+    if (h !== undefined) abrirCasas(estado.rondas[+h]);
     if (d !== undefined) abrirPdf(estado.rondas[+d]);
     if (c !== undefined) copiar(textoRonda(estado.rondas[+c]));
     if (b !== undefined && confirm(`¿Borrar la Celebración del ${fechaBonita(estado.rondas[+b].fecha)}? Dejará de contar en el historial.`)) {
       estado.rondas.splice(+b, 1);
       guardar(); pintarTodo();
     }
+  });
+
+  // ---------- Indicar quién preparó en una Celebración ya guardada ----------
+  // Sirve para las Celebraciones guardadas antes de existir "quién prepara" (o para corregirlo).
+  // Solo cambia los encabezados: los grupos y "Quién con quién" no se tocan.
+  let rondaCasas = null, opcionesCasas = [];
+  function abrirCasas(r) {
+    rondaCasas = r;
+    const repartidos = new Set(r.grupos.flat());
+    // Candidatos: quienes no están repartidos. Un matrimonio da tres opciones: cada cónyuge o los dos juntos.
+    opcionesCasas = [];
+    alfabetico(estado.participantes.filter(p => !repartidos.has(p.id))).forEach(p => {
+      const partes = nombresDe(p.nombre);
+      if (partes.length > 1) {
+        partes.forEach(n => opcionesCasas.push({ nombre: n, id: p.id, personas: 1, etiqueta: `${n} (de ${p.nombre})` }));
+        opcionesCasas.push({ nombre: p.nombre, id: p.id, personas: personas(p.nombre), etiqueta: `${p.nombre} (juntos)` });
+      } else opcionesCasas.push({ nombre: p.nombre, id: p.id, personas: 1, etiqueta: p.nombre });
+    });
+    const elegida = (gi) => {
+      const c = r.casas && r.casas[gi];
+      if (c) return opcionesCasas.findIndex(o => o.id === c.id && o.nombre === c.nombre);
+      // Si el PDF ya tenía un encabezado que coincide con una sola opción, se propone.
+      const cab = r.cabeceras && r.cabeceras[gi];
+      const coinciden = cab ? opcionesCasas.map((o, i) => [o, i]).filter(([o]) => o.nombre.toLowerCase() === cab.trim().toLowerCase()) : [];
+      return coinciden.length === 1 ? coinciden[0][1] : -1;
+    };
+    $('#casasTitulo').textContent = `🏠 Quién preparó · ${fechaCorta(r.fecha)}`;
+    $('#casasCampos').innerHTML = r.grupos.map((g, gi) => {
+      const sel = elegida(gi);
+      return `<label class="campo" style="display:block;margin:12px 0 4px"><strong>Grupo ${gi + 1}</strong>
+          <span class="muted" style="font-size:.85rem"> · ${g.map(id => esc(nombreDe(id))).join(', ')}</span></label>
+        <select data-casa="${gi}" style="width:100%"><option value="-1">— Nadie —</option>
+          ${opcionesCasas.map((o, i) => `<option value="${i}" ${i === sel ? 'selected' : ''}>${esc(o.etiqueta)}</option>`).join('')}</select>`;
+    }).join('');
+    $('#dlgCasas').showModal();
+  }
+  $('#btnCerrarCasas').addEventListener('click', () => $('#dlgCasas').close());
+  $('#btnGuardarCasas').addEventListener('click', () => {
+    const r = rondaCasas;
+    const elegidas = [...document.querySelectorAll('#casasCampos select')].map(x => +x.value);
+    const nadie = elegidas.every(i => i < 0);
+    if (!nadie && elegidas.some(i => i < 0)) return alert('Elige quién preparó en todos los grupos, o deja todos en “Nadie”.');
+    if (new Set(elegidas).size !== elegidas.length && !nadie) return alert('Has elegido a la misma persona en dos grupos.');
+    if (nadie) { delete r.casas; delete r.cabeceras; }
+    else {
+      r.casas = elegidas.map(i => { const o = opcionesCasas[i]; return { nombre: o.nombre, id: o.id, personas: o.personas }; });
+      r.cabeceras = r.casas.map(c => c.nombre);
+    }
+    guardar();
+    $('#dlgCasas').close();
+    pintarTodo();
   });
 
   // ---------- Participantes ----------
