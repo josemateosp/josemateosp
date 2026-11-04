@@ -16,13 +16,19 @@ La primera vez te pedirá tu correo y contraseña; después la sesión queda abi
 
 ## Cómo usarla
 
-Al abrirla sale un **menú de inicio** con botones: Nueva Celebración, Historial, Quién con quién, Participantes y Copia de seguridad. Dentro de cada uno, **← Inicio** (o el gesto de “atrás” del móvil) vuelve al menú.
+Al abrirla sale un **menú de inicio** con botones: Nueva Celebración, Historial, Quién con quién, Participantes y Ajustes y seguridad. Dentro de cada uno, **← Inicio** (o el gesto de “atrás” del móvil) vuelve al menú.
 
 1. En **Nueva Celebración**: elige el número de grupos y la fecha, desmarca a quien no venga ese mes y pulsa **Generar grupos**.
 2. Si quieres, mueve a alguien de grupo con su desplegable. Pulsa **Generar otra vez** para ver otra propuesta.
 3. Pulsa **Guardar esta ronda**. Solo las rondas guardadas cuentan en el historial.
 4. **📄 Generar PDF** (tras guardar, o desde el Historial): pide el título del tema, la celebración y el encabezado de cada grupo, y muestra la hoja con **Guardar PDF** (en el móvil abre el menú Compartir: Guardar en Archivos, WhatsApp, imprimir…).
 5. **Copiar para WhatsApp** te deja el reparto listo para pegarlo en el chat.
+
+**Quién prepara.** En Nueva Celebración eliges “Se reparten todos” o “Hay un grupo que prepara y se reparte”. En el segundo caso marcas quién prepara: cada matrimonio se separa en dos casas (salvo que marques “van juntos”), hay una casa por cada uno y el resto se reparte entre ellas. Quien prepara sale como encabezado de su grupo y **no cuenta** en “Quién con quién”.
+
+**Quién con quién** muestra además las parejas que aún no han coincidido nunca y, al elegir a alguien, en qué Celebraciones estuvo y en qué casa.
+
+La app usa **modo oscuro** si el aparato lo tiene activado (el PDF siempre sale en blanco).
 
 ## Agregar o quitar participantes
 
@@ -32,7 +38,11 @@ Pulsa **👥 Agregar/Quitar participantes** en Nueva Celebración o en Participa
 
 Al abrir la app se entra con correo y contraseña (una sola cuenta, creada en Firebase; la app no permite registrarse). Los datos se guardan en **Firebase (Firestore)** y se sincronizan solos entre todos tus aparatos; además se guarda una copia en cada aparato para que funcione sin conexión. La página es pública, pero los datos no: las reglas de Firestore solo dejan leer y escribir al UID de tu cuenta.
 
-Aun así, descarga de vez en cuando una copia en **Copia de seguridad**. Con **Cargar copia** se recupera (y se sube a la nube). **Cerrar sesión** borra los datos de ese aparato, que siguen en la nube.
+En **Ajustes y seguridad**:
+- **Copias en la nube**: se hace una automáticamente al guardar cada Celebración y antes de borrar, cargar o recuperar datos; se conservan las 10 últimas y se pueden **recuperar**.
+- **Descargar copia**: en Chrome/Edge de ordenador eliges carpeta; en el móvil se abre Compartir → Guardar en Archivos.
+- **Cargar copia**, **Recuperar** y **Borrar todo** piden la **contraseña de control** (en el código solo está su huella SHA-256).
+- **Cambiar contraseña de acceso** (pide la actual) y **Cerrar sesión** (borra los datos de ese aparato, que siguen en la nube).
 
 - Firebase: proyecto `casas-c8b5f` (plan Spark, gratuito). Usuario en *Authentication*, datos en *Firestore* → documento `datos/salmo`.
 - Si olvidas la contraseña: botón “¿Has olvidado la contraseña?” en la pantalla de acceso, o cámbiala en *Authentication → Usuarios*.

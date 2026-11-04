@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#5a1f1b">
+<meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Celebración">
@@ -24,6 +25,25 @@
     --ok: #2f7d4f;
     --warn: #b7791f;
     --bad: #c0392b;
+    --input: #ffffff;
+    --soft: #eeeeee;
+    --chip-falta: #fde8e1;
+  }
+  /* Modo oscuro: se activa solo si el móvil u ordenador lo tiene activado. El PDF siempre sale en blanco. */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1917;
+      --card: #26231f;
+      --ink: #ece6dc;
+      --muted: #a9a092;
+      --line: #3b362f;
+      --accent: #cf6d3e;
+      --ok: #5cbf85;
+      --bad: #ef6b5b;
+      --input: #1f1c19;
+      --soft: #332f29;
+      --chip-falta: #4d2b22;
+    }
   }
   * { box-sizing: border-box; }
   body {
@@ -53,11 +73,13 @@
   input[type=number] { width: 70px; }
   input, select, button { font: inherit; }
   input[type=text], input[type=date], input[type=number], select {
-    padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff;
+    padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--input); color: var(--ink);
   }
+  input[type=password], input[type=email] { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--input); color: var(--ink); }
   .btn {
-    border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 8px 14px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: 8px 14px; cursor: pointer;
   }
+  .btn:disabled { opacity: .6; cursor: default; }
   .btn:hover { border-color: var(--muted); }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .btn.small { padding: 3px 9px; font-size: .9rem; }
@@ -66,30 +88,32 @@
   .asist { columns: 4 210px; column-gap: 12px; margin-top: 10px; }
   .asist label { display: flex; margin-bottom: 4px; break-inside: avoid; }
   .grupos { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
-  .grupo { border-radius: 10px; padding: 12px; border: 1px solid rgba(0,0,0,.08); }
+  .grupo { border-radius: 10px; padding: 12px; border: 1px solid rgba(0,0,0,.08); color: #22201c; }
+  .grupo .muted { color: #5b544a; }
+  .grupo li select { color: #22201c; border-color: rgba(0,0,0,.15); }
   .grupo h3 { margin: 0 0 8px; font-size: 1.05rem; display: flex; justify-content: space-between; }
   .grupo ul { list-style: none; margin: 0; padding: 0; }
   .grupo li { display: flex; justify-content: space-between; gap: 6px; align-items: center; padding: 3px 0; }
   .grupo li select { font-size: .8rem; padding: 1px 4px; background: rgba(255,255,255,.7); }
   .avisos { font-size: .85rem; margin-top: 8px; color: #5a3b00; }
   .resumen { margin: 12px 0; }
-  .chip { display: inline-block; padding: 2px 8px; border-radius: 99px; background: #eee; font-size: .85rem; margin: 2px; }
-  .chip.falta { background: #fde8e1; }
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 99px; background: var(--soft); font-size: .85rem; margin: 2px; }
+  .chip.falta { background: var(--chip-falta); }
   table { border-collapse: collapse; }
-  .matriz-wrap { overflow: auto; max-height: 75vh; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .matriz-wrap { overflow: auto; max-height: 75vh; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
   .matriz th, .matriz td { border: 1px solid var(--line); padding: 2px 5px; text-align: center; font-size: .8rem; min-width: 26px; }
-  .matriz thead th { position: sticky; top: 0; background: #fff; writing-mode: vertical-rl; transform: rotate(180deg); height: 130px; text-align: left; z-index: 1; }
-  .matriz tbody th { position: sticky; left: 0; background: #fff; text-align: left; white-space: nowrap; }
-  .matriz td.self { background: #ddd; }
+  .matriz thead th { position: sticky; top: 0; background: #fff; writing-mode: vertical-rl; transform: rotate(180deg); height: 130px; text-align: left; z-index: 1; background: var(--card); }
+  .matriz tbody th { position: sticky; left: 0; background: var(--card); text-align: left; white-space: nowrap; }
+  .matriz td.self { background: var(--line); }
   .historial table { width: 100%; }
   .historial td, .historial th { border-bottom: 1px solid var(--line); padding: 6px; text-align: left; vertical-align: top; }
   .part-list li { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
   .part-list { list-style: none; padding: 0; margin: 0; }
   .part-list input[type=text] { flex: 1; max-width: 320px; }
-  .bar { height: 10px; background: #eee; border-radius: 99px; overflow: hidden; }
+  .bar { height: 10px; background: var(--soft); border-radius: 99px; overflow: hidden; }
   .bar > div { height: 100%; background: var(--ok); }
   textarea { width: 100%; min-height: 160px; font: 14px/1.4 ui-monospace, monospace; }
-  dialog { border: 1px solid var(--line); border-radius: 12px; padding: 0; width: min(560px, calc(100vw - 32px)); max-height: 85vh; }
+  dialog { border: 1px solid var(--line); border-radius: 12px; padding: 0; background: var(--card); color: var(--ink); width: min(560px, calc(100vw - 32px)); max-height: 85vh; }
   dialog::backdrop { background: rgba(0,0,0,.35); }
   .dlg-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--line); }
   .dlg-head h3 { margin: 0; }
@@ -114,11 +138,23 @@
   .barra-sec { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
   .barra-sec h2 { margin: 0; font-size: 1.3rem; }
   .btn.volver { padding: 7px 12px; }
+  .org { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .org > label { margin: 6px 16px 0 0; }
+  .prep-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 6px; break-inside: avoid; }
+  .prep-item .juntos { font-size: .85rem; color: var(--muted); }
+  .solo-sesion { display: none; }
+  body.con-sesion .solo-sesion { display: block; }
+  .copias-lista { list-style: none; margin: 0 0 10px; padding: 0; }
+  .copias-lista li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  .copias-lista li:last-child { border-bottom: 0; }
+  .copias-lista .btn { white-space: nowrap; flex: none; }
+  .campo-clave { display: grid; gap: 8px; max-width: 360px; margin-bottom: 10px; }
+  .pendientes li { margin: 2px 0; }
   body:not([data-sec="inicio"]) header .intro { display: none; }
   header { padding-bottom: 12px; }
 
   /* Nube y acceso */
-  .nube { margin-left: auto; font-size: .78rem; font-weight: 500; color: var(--muted); background: #fff; border: 1px solid var(--line);
+  .nube { margin-left: auto; font-size: .78rem; font-weight: 500; color: var(--muted); background: var(--card); border: 1px solid var(--line);
     border-radius: 99px; padding: 3px 10px; white-space: nowrap; }
   .nube.ok { color: var(--ok); }
   .nube.error { color: var(--bad); }
@@ -246,6 +282,21 @@
     </div>
   </dialog>
 
+  <dialog id="dlgClave">
+    <form method="dialog" id="formClave">
+      <div class="dlg-head"><h3>🔒 Contraseña de control</h3></div>
+      <div class="dlg-body">
+        <p id="claveMotivo" style="margin-top:0"></p>
+        <input type="password" id="claveControl" style="width:100%" autocomplete="off" placeholder="Contraseña de control">
+        <p class="acc-error" id="claveError"></p>
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn" type="button" id="btnClaveCancelar">Cancelar</button>
+          <button class="btn primary" type="submit" id="btnClaveOk">Continuar</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
   <!-- INICIO -->
   <section id="inicio" class="active">
     <div id="avisoInicio"></div>
@@ -254,9 +305,9 @@
       <button class="tile" data-ir-a="historial"><span class="t-ico">📜</span><span class="t-tit">Historial</span><span class="t-sub" id="subHistorial"></span></button>
       <button class="tile" data-ir-a="matriz"><span class="t-ico">🤝</span><span class="t-tit">Quién con quién</span><span class="t-sub" id="subMatriz"></span></button>
       <button class="tile" data-ir-a="participantes"><span class="t-ico">👥</span><span class="t-tit">Participantes</span><span class="t-sub" id="subParticipantes"></span></button>
-      <button class="tile" data-ir-a="copia"><span class="t-ico">💾</span><span class="t-tit">Copia de seguridad</span><span class="t-sub">Descargar, cargar y tu cuenta</span></button>
+      <button class="tile" data-ir-a="copia"><span class="t-ico">⚙️</span><span class="t-tit">Ajustes y seguridad</span><span class="t-sub">Copias, contraseña y tu cuenta</span></button>
     </div>
-    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 9 · 3/11/2026</p>
+    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 10 · 4/11/2026</p>
   </section>
 
   <!-- NUEVA RONDA -->
@@ -273,6 +324,17 @@
         <summary>¿Quién viene este mes? <span class="muted" id="asistResumen"></span></summary>
         <div class="asist" id="asistencia"></div>
       </details>
+      <div class="org">
+        <strong>¿Cómo se organiza esta Celebración?</strong><br>
+        <label class="inline"><input type="radio" name="modo" value="todos" checked> Se reparten todos</label>
+        <label class="inline"><input type="radio" name="modo" value="prepara"> Hay un grupo que prepara y se reparte</label>
+        <div id="preparaBox" hidden style="margin-top:10px">
+          <p class="muted" style="margin:0 0 8px;font-size:.9rem">Marca quién prepara. Cada matrimonio se separa: uno va a una casa y el otro a otra.
+            Si esta vez van juntos, marca “van juntos”. Quien prepara no cuenta en “Quién con quién”.</p>
+          <div class="asist" id="listaPrepara"></div>
+          <p id="casasResumen" style="margin:8px 0 0"></p>
+        </div>
+      </div>
     </div>
 
     <div id="propuesta"></div>
@@ -282,6 +344,7 @@
   <section id="matriz">
     <div class="barra-sec"><button class="btn volver" data-ir-a="inicio">← Inicio</button><h2>Quién con quién</h2></div>
     <div class="panel" id="progreso"></div>
+    <div class="panel" id="pendientes"></div>
     <div class="panel">
       <div class="row">
         <label class="inline">Ver a quién le falta coincidir:
@@ -289,6 +352,7 @@
         </label>
       </div>
       <div id="faltan" style="margin-top:10px"></div>
+      <div id="estuvo" style="margin-top:12px"></div>
     </div>
     <p class="muted">Número de veces que cada uno ha coincidido con cada otro. Los huecos vacíos son los que aún no han coincidido.</p>
     <div class="matriz-wrap"><table class="matriz" id="tablaMatriz"></table></div>
@@ -315,33 +379,54 @@
     </div>
   </section>
 
-  <!-- COPIA -->
+  <!-- AJUSTES Y SEGURIDAD -->
   <section id="copia">
-    <div class="barra-sec"><button class="btn volver" data-ir-a="inicio">← Inicio</button><h2>Copia de seguridad</h2></div>
-    <div class="panel">
-      <h3 style="margin-top:0">Guardar y recuperar el historial</h3>
-      <p>Con tu cuenta, los datos se guardan en la nube y se sincronizan solos entre tus aparatos. Aun así, <strong>descarga una copia de vez en cuando</strong>
-        (por ejemplo, después de cada Celebración). Con “Cargar copia” recuperas una copia descargada; si has entrado con tu cuenta, también se sube a la nube.</p>
-      <div class="row">
-        <button class="btn primary" id="btnExportar">⬇️ Descargar copia (.json)</button>
-        <label class="btn">⬆️ Cargar copia<input type="file" id="fileImport" accept=".json,application/json" hidden></label>
-        <button class="btn danger" id="btnBorrarTodo">Borrar todo</button>
-      </div>
-    </div>
-    <div class="panel" id="panelCuenta" hidden>
-      <h3 style="margin-top:0">☁️ Tu cuenta</h3>
-      <p>Has entrado como <strong id="cuentaEmail"></strong>. <span id="cuentaEstado" class="muted"></span></p>
+    <div class="barra-sec"><button class="btn volver" data-ir-a="inicio">← Inicio</button><h2>Ajustes y seguridad</h2></div>
+    <div class="panel solo-sesion" id="panelCuenta">
+      <h3 style="margin-top:0">👤 Tu cuenta</h3>
+      <p>Estás usando la app como <strong id="cuentaEmail"></strong>. <span id="cuentaEstado" class="muted"></span></p>
       <button class="btn" id="btnSalir">Cerrar sesión en este aparato</button>
     </div>
     <div class="panel">
+      <h3 style="margin-top:0">💾 Copias de seguridad</h3>
+      <p><strong>Descargar copia</strong> guarda un archivo con todos los datos (y otra copia en la nube). En el ordenador eliges la carpeta;
+        en el iPhone o Android se abre Compartir → <strong>Guardar en Archivos</strong>.</p>
+      <div class="row">
+        <button class="btn primary" id="btnExportar">⬇️ Descargar copia</button>
+        <button class="btn" id="btnCargar">🔒 Cargar copia</button>
+        <input type="file" id="fileImport" accept=".json,application/json" hidden>
+      </div>
+      <p class="muted" style="margin-bottom:0;font-size:.9rem">“Cargar copia” sustituye los datos actuales y pide la contraseña de control.</p>
+    </div>
+    <div class="panel solo-sesion">
+      <h3 style="margin-top:0">☁️ Copias en la nube</h3>
+      <p>Se hace una copia automática cada vez que guardas una Celebración, y antes de borrar o cargar datos. Se conservan las <strong>10 últimas</strong>.</p>
+      <ul class="copias-lista" id="listaCopias"><li class="muted">Cargando…</li></ul>
+      <button class="btn" id="btnCopiaAhora">☁️ Hacer una copia ahora</button>
+    </div>
+    <div class="panel solo-sesion">
+      <h3 style="margin-top:0">🔑 Cambiar contraseña de acceso</h3>
+      <div class="campo-clave">
+        <input type="password" id="claveActual" placeholder="Contraseña actual" autocomplete="current-password">
+        <input type="password" id="claveNueva" placeholder="Contraseña nueva (mínimo 6 caracteres)" autocomplete="new-password">
+        <input type="password" id="claveRepetir" placeholder="Repite la contraseña nueva" autocomplete="new-password">
+      </div>
+      <button class="btn" id="btnCambiarClave">Cambiar contraseña</button>
+    </div>
+    <div class="panel">
       <h3 style="margin-top:0">🔄 Actualizar la app</h3>
-      <p>Tienes la <strong>versión 9 · 3/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
+      <p>Tienes la <strong>versión 10 · 4/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
       <button class="btn" id="btnActualizar">🔄 Buscar actualización</button>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">⚠️ Borrar todo</h3>
+      <p>Borra el historial y la lista de participantes en todos tus aparatos. Antes se guarda una copia en la nube. Pide la contraseña de control.</p>
+      <button class="btn danger" id="btnBorrarTodo">🔒 Borrar todo</button>
     </div>
     <div class="panel" id="panelReglas" hidden>
       <h3 style="margin-top:0">⚠️ Falta dar permiso a tu usuario en Firestore</h3>
       <p>Tu correo y contraseña son correctos, pero la regla de Firestore no deja entrar a tu usuario. Esta es la regla con <strong>tu UID ya puesto</strong>:</p>
-      <pre id="textoReglas" style="white-space:pre-wrap;word-break:break-all;background:#f6f4ef;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.85rem"></pre>
+      <pre id="textoReglas" style="white-space:pre-wrap;word-break:break-all;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.85rem"></pre>
       <div class="row"><button class="btn primary" id="btnCopiarReglas">📋 Copiar regla</button></div>
       <ol style="margin-bottom:0">
         <li>En Firebase: <strong>Firestore → Reglas</strong>.</li>
@@ -460,9 +545,10 @@
     return Math.pow(30, v - 1) + 0.3 / rondasDesde;
   }
 
-  function optimizar(ids, G) {
+  // extra[g]: personas que ya están en el grupo g sin repartir (quien prepara); solo cuentan para equilibrar el tamaño.
+  function optimizar(ids, G, extra = null) {
     const n = ids.length;
-    G = Math.max(1, Math.min(G, n));
+    G = extra ? extra.length : Math.max(1, Math.min(G, n));
     const { veces, ultima } = estadisticas();
     const R = estado.rondas.length;
     const W = ids.map(a => ids.map(b => {
@@ -471,7 +557,8 @@
       return costePar(veces[k] || 0, R - (ultima[k] ?? 0));
     }));
     const pers = ids.map(id => personas(nombreDe(id)));
-    const media = pers.reduce((s, x) => s + x, 0) / G;
+    const fijos = extra || new Array(G).fill(0);
+    const media = (pers.reduce((s, x) => s + x, 0) + fijos.reduce((s, x) => s + x, 0)) / G;
     const PESO_TAM = 3; // equilibra el número de personas por grupo
     const tamanos = Array.from({ length: G }, (_, g) => Math.floor(n / G) + (g < n % G ? 1 : 0));
 
@@ -484,7 +571,7 @@
       tamanos.forEach((t, g) => { for (let i = 0; i < t; i++) asig[orden[p++]] = g; });
       // M[x][g] = suma de costes de x con los miembros del grupo g
       const M = Array.from({ length: n }, () => new Array(G).fill(0));
-      const P = new Array(G).fill(0);
+      const P = fijos.slice();
       for (let x = 0; x < n; x++) {
         P[asig[x]] += pers[x];
         for (let y = 0; y < n; y++) M[x][asig[y]] += W[x][y];
@@ -534,6 +621,7 @@
     document.body.dataset.sec = id;
     window.scrollTo(0, 0);
     pintarTodo();
+    if (id === 'copia') pintarCopias();
   }
   function irA(id) {
     if (id === 'inicio') {
@@ -571,6 +659,48 @@
     if (!id) return;
     e.target.checked ? ausentes.delete(id) : ausentes.add(id);
     pintarAsistencia();
+    pintarPrepara();
+  });
+
+  // ---------- Quién prepara ----------
+  // Cada matrimonio que prepara se separa en dos casas (una por cónyuge), salvo que se marque "van juntos".
+  // Quien prepara no se guarda en los grupos, así que no cuenta en "Quién con quién".
+  let modo = 'todos';
+  const preparan = new Map(); // id → { juntos: bool }
+  const nombresDe = (nombre) => nombre.trim().split(/\s+(?:y|e)\s+/i);
+  function casasPrepara() {
+    const casas = [];
+    activos().filter(p => preparan.has(p.id) && !ausentes.has(p.id)).forEach(p => {
+      const partes = nombresDe(p.nombre);
+      if (partes.length > 1 && !preparan.get(p.id).juntos) partes.forEach(n => casas.push({ nombre: n, id: p.id, personas: 1 }));
+      else casas.push({ nombre: p.nombre, id: p.id, personas: personas(p.nombre) });
+    });
+    return casas;
+  }
+  function pintarPrepara() {
+    $('#preparaBox').hidden = modo !== 'prepara';
+    $('#numGrupos').disabled = modo === 'prepara';
+    if (modo !== 'prepara') { $('#numGrupos').value = estado.numGrupos; return; }
+    $('#listaPrepara').innerHTML = activos().filter(p => !ausentes.has(p.id)).map(p => {
+      const marcado = preparan.has(p.id), pareja = nombresDe(p.nombre).length > 1;
+      return `<div class="prep-item"><label class="inline"><input type="checkbox" data-prepara="${p.id}" ${marcado ? 'checked' : ''}> ${esc(p.nombre)}</label>
+        ${marcado && pareja ? `<label class="inline juntos"><input type="checkbox" data-juntos="${p.id}" ${preparan.get(p.id).juntos ? 'checked' : ''}> van juntos</label>` : ''}</div>`;
+    }).join('');
+    const casas = casasPrepara();
+    $('#numGrupos').value = casas.length;
+    $('#casasResumen').innerHTML = casas.length
+      ? `🏠 <strong>${casas.length} ${casas.length === 1 ? 'casa' : 'casas'}</strong>: ${casas.map(c => esc(c.nombre)).join(', ')}`
+      : '<span class="muted">Todavía no has marcado a nadie.</span>';
+  }
+  document.querySelectorAll('input[name=modo]').forEach(r => r.addEventListener('change', () => {
+    modo = document.querySelector('input[name=modo]:checked').value;
+    pintarPrepara();
+  }));
+  $('#listaPrepara').addEventListener('change', e => {
+    const idP = e.target.dataset.prepara, idJ = e.target.dataset.juntos;
+    if (idP) e.target.checked ? preparan.set(idP, { juntos: false }) : preparan.delete(idP);
+    if (idJ && preparan.has(idJ)) preparan.get(idJ).juntos = e.target.checked;
+    pintarPrepara();
   });
 
   $('#numGrupos').addEventListener('change', e => {
@@ -579,13 +709,18 @@
   });
 
   $('#btnGenerar').addEventListener('click', () => {
-    const ids = activos().filter(p => !ausentes.has(p.id)).map(p => p.id);
-    if (ids.length < 2) { alert('Hace falta al menos dos participantes.'); return; }
+    const casas = modo === 'prepara' ? casasPrepara() : null;
+    if (casas && !casas.length) { alert('Marca quién prepara esta Celebración.'); return; }
+    const ids = activos().filter(p => !ausentes.has(p.id) && !(casas && preparan.has(p.id))).map(p => p.id);
+    if (ids.length < 2) { alert('Hace falta al menos dos participantes para repartir.'); return; }
     const btn = $('#btnGenerar');
     btn.disabled = true; btn.textContent = 'Calculando…';
     recienGuardada = null;
     setTimeout(() => {
-      propuesta = { grupos: optimizar(ids, estado.numGrupos), fecha: $('#fecha').value || hoy() };
+      propuesta = {
+        grupos: casas ? optimizar(ids, casas.length, casas.map(c => c.personas)) : optimizar(ids, estado.numGrupos),
+        casas, fecha: $('#fecha').value || hoy()
+      };
       btn.disabled = false; btn.textContent = '✨ Generar otra vez';
       pintarPropuesta();
     }, 20);
@@ -615,7 +750,7 @@
           <button class="btn primary" data-ir="copia">⬆️ Cargar mi copia de seguridad</button>
           <button class="btn" data-ir="gestionar">👥 Añadir participantes</button>
         </div>
-        <p class="muted" style="margin-bottom:0;font-size:.9rem">Si ya usabas el programa en otro aparato, descarga allí la copia (pestaña “Copia de seguridad”) y cárgala aquí.</p></div>`;
+        <p class="muted" style="margin-bottom:0;font-size:.9rem">Si ya usabas el programa en otro aparato, descarga allí la copia (en “Ajustes y seguridad”) y cárgala aquí.</p></div>`;
       return;
     }
     if (!propuesta && recienGuardada && estado.rondas.includes(recienGuardada)) {
@@ -637,16 +772,18 @@
     }
     const { repes, max, nuevos, avisos } = analizar(propuesta.grupos);
     const G = propuesta.grupos.length;
+    const casa = (g) => propuesta.casas && propuesta.casas[g];
+    const tituloGrupo = (g) => casa(g) ? '🏠 ' + casa(g).nombre : 'Grupo ' + (g + 1);
     const opciones = (gActual) => Array.from({ length: G }, (_, g) =>
-      `<option value="${g}" ${g === gActual ? 'selected' : ''}>Grupo ${g + 1}</option>`).join('');
+      `<option value="${g}" ${g === gActual ? 'selected' : ''}>${esc(tituloGrupo(g))}</option>`).join('');
     const tarjetas = propuesta.grupos.map((g, gi) => {
-      const nPers = g.reduce((s, id) => s + personas(nombreDe(id)), 0);
+      const nPers = g.reduce((s, id) => s + personas(nombreDe(id)), 0) + (casa(gi) ? casa(gi).personas : 0);
       const lis = g.map(id => `<li><span>${esc(nombreDe(id))}</span>
         <select data-mover="${id}" title="Mover a otro grupo">${opciones(gi)}</select></li>`).join('');
       const av = avisos[gi].map(x =>
         `<div>↺ ${esc(nombreDe(x.a))} – ${esc(nombreDe(x.b))}: ${x.v} ${x.v === 1 ? 'vez' : 'veces'} antes</div>`).join('');
       return `<div class="grupo" style="background:${COLORES[gi % COLORES.length]}">
-        <h3><span>Grupo ${gi + 1}</span><span class="muted">${nPers} pers.</span></h3>
+        <h3><span>${esc(tituloGrupo(gi))}</span><span class="muted">${nPers} pers.</span></h3>
         <ul>${lis}</ul>${av ? `<div class="avisos">${av}</div>` : ''}</div>`;
     }).join('');
     let msg;
@@ -697,11 +834,14 @@
     if (e.target.id === 'btnCopiarGuardada') return copiar(textoRonda(recienGuardada));
     if (!propuesta) return;
     if (e.target.id === 'btnGuardar') {
-      const grupos = propuesta.grupos.filter(g => g.length);
+      let grupos = propuesta.grupos, casas = propuesta.casas;
+      if (!casas) grupos = grupos.filter(g => g.length); // con casas se guardan todas, aunque alguna quede vacía
       recienGuardada = { fecha: propuesta.fecha, grupos };
+      if (casas) { recienGuardada.casas = casas; recienGuardada.cabeceras = casas.map(c => c.nombre); }
       estado.rondas.push(recienGuardada);
       estado.rondas.sort((a, b) => a.fecha.localeCompare(b.fecha));
       guardar();
+      copiaNube(`Celebración del ${fechaCorta(propuesta.fecha)} guardada`);
       propuesta = null;
       $('#btnGenerar').textContent = '✨ Generar grupos';
       pintarTodo();
@@ -729,8 +869,25 @@
     $('#progreso').innerHTML = `<strong>${hechos} de ${totalPares}</strong> parejas posibles ya han coincidido (${pct}%) en ${estado.rondas.length} ${estado.rondas.length === 1 ? 'Celebración' : 'Celebraciones'}.
       <div class="bar" style="margin-top:8px"><div style="width:${pct}%"></div></div>`;
 
+    // Parejas que aún no han coincidido nunca (solo para consultar).
+    const pendientes = [], cuenta = {};
+    for (let i = 0; i < ps.length; i++) for (let j = i + 1; j < ps.length; j++) {
+      if (veces[clave(ps[i].id, ps[j].id)]) continue;
+      pendientes.push([ps[i], ps[j]]);
+      cuenta[ps[i].id] = (cuenta[ps[i].id] || 0) + 1;
+      cuenta[ps[j].id] = (cuenta[ps[j].id] || 0) + 1;
+    }
+    const ranking = ps.filter(p => cuenta[p.id]).sort((a, b) => cuenta[b.id] - cuenta[a.id]);
+    $('#pendientes').innerHTML = !estado.rondas.length ? '<strong>Aún no han coincidido nunca</strong><p class="muted" style="margin-bottom:0">Todavía no hay Celebraciones guardadas.</p>'
+      : !pendientes.length ? '<strong>Aún no han coincidido nunca</strong><p style="margin-bottom:0">🎉 ¡Todos han coincidido ya con todos!</p>'
+      : `<strong>Aún no han coincidido nunca: ${pendientes.length} ${pendientes.length === 1 ? 'pareja' : 'parejas'}</strong>
+        <p class="muted" style="margin:6px 0 4px;font-size:.9rem">Quién tiene más pendientes:</p>
+        <div>${ranking.map(p => `<span class="chip falta">${esc(p.nombre)} · ${cuenta[p.id]}</span>`).join('')}</div>
+        <details style="margin-top:8px"><summary>Ver todas las parejas</summary>
+          <ul class="pendientes">${pendientes.map(([a, b]) => `<li>${esc(a.nombre)} – ${esc(b.nombre)}</li>`).join('')}</ul></details>`;
+
     const color = (v) => {
-      if (!v) return '#fff';
+      if (!v) return 'transparent';
       const t = maxV > 1 ? (v - 1) / (maxV - 1) : 0;
       return `hsl(${140 - 130 * t}, 55%, ${82 - 22 * t}%)`;
     };
@@ -740,7 +897,7 @@
       html += `<tr><th>${esc(a.nombre)}</th>` + ps.map(b => {
         if (a.id === b.id) return '<td class="self"></td>';
         const v = veces[clave(a.id, b.id)] || 0;
-        return `<td style="background:${color(v)}">${v || ''}</td>`;
+        return `<td style="background:${color(v)};${v ? 'color:#22201c' : ''}">${v || ''}</td>`;
       }).join('') + '</tr>';
     });
     $('#tablaMatriz').innerHTML = html + '</tbody>';
@@ -759,6 +916,15 @@
       .map(p => ({ p, v: veces[clave(id, p.id)] || 0 }));
     const faltan = otros.filter(o => !o.v);
     const ya = otros.filter(o => o.v).sort((a, b) => b.v - a.v);
+    // En qué Celebraciones ha estado y en qué grupo (o si preparó).
+    const estuvo = estado.rondas.map(r => {
+      if (r.casas && r.casas.some(c => c.id === id)) return { r, txt: 'preparó (' + r.casas.filter(c => c.id === id).map(c => c.nombre).join(' y ') + ')' };
+      const gi = r.grupos.findIndex(g => g.includes(id));
+      if (gi < 0) return null;
+      return { r, txt: r.casas ? 'en casa de ' + r.casas[gi].nombre : (r.cabeceras && r.cabeceras[gi]) || 'Grupo ' + (gi + 1) };
+    }).filter(Boolean).reverse();
+    $('#estuvo').innerHTML = `<strong>Celebraciones en las que ha estado (${estuvo.length}):</strong>
+      ${estuvo.length ? `<ul style="margin:4px 0 0;padding-left:20px">${estuvo.map(x => `<li>${fechaCorta(x.r.fecha)} · ${esc(x.txt)}</li>`).join('')}</ul>` : '<br><span class="muted">ninguna todavía</span>'}`;
     $('#faltan').innerHTML =
       `<div><strong>Aún no ha coincidido con (${faltan.length}):</strong><br>${faltan.map(o => `<span class="chip falta">${esc(o.p.nombre)}</span>`).join('') || '<span class="muted">¡Con todos! 🎉</span>'}</div>
        <div style="margin-top:8px"><strong>Ya ha coincidido con:</strong><br>${ya.map(o => `<span class="chip">${esc(o.p.nombre)} ×${o.v}</span>`).join('') || '<span class="muted">nadie todavía</span>'}</div>`;
@@ -770,7 +936,7 @@
     if (!estado.rondas.length) { $('#listaHistorial').innerHTML = '<p class="muted">Aún no hay Celebraciones guardadas.</p>'; return; }
     const filas = estado.rondas.map((r, ri) => ({ r, ri })).reverse().map(({ r, ri }) => `
       <tr><td style="white-space:nowrap"><strong>${fechaBonita(r.fecha)}</strong></td>
-      <td>${r.grupos.map((g, gi) => `<div><span class="muted">G${gi + 1}:</span> ${g.map(id => esc(nombreDe(id))).join(' · ')}</div>`).join('')}</td>
+      <td>${r.grupos.map((g, gi) => `<div><span class="muted">${r.casas ? '🏠 ' + esc(r.casas[gi].nombre) : 'G' + (gi + 1)}:</span> ${g.map(id => esc(nombreDe(id))).join(' · ')}</div>`).join('')}</td>
       <td style="white-space:nowrap">
         <button class="btn small" data-pdf="${ri}" title="Generar PDF">📄 PDF</button>
         <button class="btn small" data-copiar="${ri}" title="Copiar para WhatsApp">📋</button>
@@ -895,8 +1061,9 @@
     return {
       grupos,
       cab: r.grupos.map((_, gi) => (r.cabeceras && r.cabeceras[gi]) || 'Grupo ' + (gi + 1)),
-      pie: r.grupos.map(g => g.reduce((s, id) => s + personas(nombreDe(id)), 0)),
-      total: r.grupos.flat().reduce((s, id) => s + personas(nombreDe(id)), 0),
+      // Quien prepara también está en la casa: cuenta en las personas del grupo.
+      pie: r.grupos.map((g, gi) => g.reduce((s, id) => s + personas(nombreDe(id)), 0) + (r.casas ? r.casas[gi].personas : 0)),
+      total: r.grupos.flat().reduce((s, id) => s + personas(nombreDe(id)), 0) + (r.casas || []).reduce((s, c) => s + c.personas, 0),
       // Sin acentos ni "ª": algunos navegadores descartan los nombres de archivo con esos caracteres.
       nombreArchivo: `${r.celebracion || 'Celebración'} ${fechaCorta(r.fecha)}`.replace(/[\/\\:*?"<>|]/g, '-')
         .replace(/ª/g, 'a').replace(/º/g, 'o').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -1002,8 +1169,7 @@
     const cab = r.grupos.map((_, gi) => (r.cabeceras && r.cabeceras[gi]) || 'Grupo ' + (gi + 1));
     const cuerpo = Array.from({ length: filas }, (_, f) =>
       `<tr>${grupos.map(g => `<td>${g[f] ? esc(g[f]) : ''}</td>`).join('')}</tr>`).join('');
-    const totalPers = r.grupos.flat().reduce((s, id) => s + personas(nombreDe(id)), 0);
-    const pie = r.grupos.map(g => g.reduce((s, id) => s + personas(nombreDe(id)), 0));
+    const { pie, total: totalPers } = datosHoja(r);
     const icono = document.querySelector('h1 .biblia').outerHTML;
     return `<div class="hoja${G > 6 ? ' muchos' : ''}">
       <div class="h-cab">
@@ -1095,14 +1261,107 @@
   });
 
   // ---------- Copia de seguridad ----------
-  $('#btnExportar').addEventListener('click', () => {
+  // ---------- Contraseña de control (Borrar todo, Cargar copia, Recuperar) ----------
+  // Medida de control para el grupo: se guarda solo la huella SHA-256, no la contraseña.
+  const HUELLA_CONTROL = '5150ce89805197b285547d564b69931193dc90429c9c256000a7ea05696b139e';
+  async function huella(texto) {
+    const datos = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texto));
+    return [...new Uint8Array(datos)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  let resolverClave = null;
+  function pedirClave(motivo) {
+    $('#claveMotivo').textContent = motivo;
+    $('#claveControl').value = ''; $('#claveError').textContent = '';
+    $('#dlgClave').showModal();
+    setTimeout(() => $('#claveControl').focus(), 50);
+    return new Promise(r => { resolverClave = r; });
+  }
+  function cerrarClave(ok) { $('#dlgClave').close(); if (resolverClave) { resolverClave(ok); resolverClave = null; } }
+  $('#formClave').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (await huella($('#claveControl').value.trim().toLowerCase()) === HUELLA_CONTROL) cerrarClave(true);
+    else { $('#claveError').textContent = 'Contraseña incorrecta.'; $('#claveControl').select(); }
+  });
+  $('#btnClaveCancelar').addEventListener('click', () => cerrarClave(false));
+  $('#dlgClave').addEventListener('cancel', () => cerrarClave(false));
+
+  // ---------- Copias en la nube (las hace nube.js) ----------
+  const nube = () => window.__salmo && window.__salmo.nube;
+  function copiaNube(motivo) {
+    if (nube()) nube().crearCopia(motivo).then(pintarCopias).catch(() => {});
+  }
+  async function pintarCopias() {
+    if (!nube() || document.body.dataset.sec !== 'copia') return;
+    try {
+      const lista = await nube().listarCopias();
+      $('#listaCopias').innerHTML = lista.length ? lista.map(c => `<li><span><strong>${new Date(c.creada).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</strong>
+          · ${esc(c.motivo)}<br><span class="muted" style="font-size:.85rem">${esc(c.resumen)}</span></span>
+          <button class="btn small" data-recuperar="${c.id}">🔒 Recuperar</button></li>`).join('')
+        : '<li class="muted">Todavía no hay copias en la nube.</li>';
+    } catch (e) { $('#listaCopias').innerHTML = '<li class="muted">No se pueden ver las copias ahora (¿sin conexión?).</li>'; }
+  }
+  $('#btnCopiaAhora').addEventListener('click', () => {
+    if (!nube()) return alert('Hay que entrar con tu cuenta para guardar copias en la nube.');
+    copiaNube('Copia hecha a mano');
+    alert('Copia guardada en la nube.');
+  });
+  $('#listaCopias').addEventListener('click', async e => {
+    const id = e.target.dataset.recuperar;
+    if (!id) return;
+    if (!await pedirClave('Recuperar esta copia sustituirá los datos actuales (antes se guarda una copia de lo que hay).')) return;
+    try {
+      const s = await nube().leerCopia(id);
+      await aplicarDatos(s, 'Antes de recuperar una copia');
+      alert('Copia recuperada.');
+    } catch (err) { alert('No se ha podido recuperar la copia (' + (err && err.message || err) + ').'); }
+  });
+
+  // Sustituye todos los datos (Cargar copia / Recuperar). Antes guarda en la nube lo que había.
+  async function aplicarDatos(s, motivoCopia) {
+    if (!Array.isArray(s.participantes) || !Array.isArray(s.rondas)) throw new Error('formato no válido');
+    copiaNube(motivoCopia);
+    estado = s;
+    estado.numGrupos = estado.numGrupos || 6;
+    estado.siguienteId = estado.siguienteId || estado.participantes.length + 1;
+    propuesta = null; ausentes = new Set(); recienGuardada = null; preparan.clear();
+    guardar(); pintarTodo();
+  }
+
+  // ---------- Cambiar contraseña de acceso ----------
+  $('#btnCambiarClave').addEventListener('click', async () => {
+    const actual = $('#claveActual').value, nueva = $('#claveNueva').value, repetir = $('#claveRepetir').value;
+    if (!actual || !nueva) return alert('Escribe la contraseña actual y la nueva.');
+    if (nueva.length < 6) return alert('La contraseña nueva tiene que tener al menos 6 caracteres.');
+    if (nueva !== repetir) return alert('La contraseña nueva y su repetición no coinciden.');
+    if (!nube()) return alert('Hay que entrar con tu cuenta (y tener conexión) para cambiar la contraseña.');
+    const btn = $('#btnCambiarClave'); btn.disabled = true; btn.textContent = 'Cambiando…';
+    try {
+      await nube().cambiarClave(actual, nueva);
+      ['#claveActual', '#claveNueva', '#claveRepetir'].forEach(x => { $(x).value = ''; });
+      alert('Contraseña cambiada. Úsala la próxima vez que entres.');
+    } catch (err) { alert(err.message); }
+    finally { btn.disabled = false; btn.textContent = 'Cambiar contraseña'; }
+  });
+
+  // ---------- Descargar / cargar copia ----------
+  $('#btnExportar').addEventListener('click', async () => {
     const nombre = `celebracion-historial-${hoy()}.json`;
     const blob = new Blob([JSON.stringify(estado, null, 2)], { type: 'application/json' });
+    copiaNube('Copia descargada');
     // En el móvil se abre el menú Compartir (Guardar en Archivos, WhatsApp, correo…).
     const archivo = new File([blob], nombre, { type: 'application/json' });
     if (matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({ files: [archivo] })) {
       navigator.share({ files: [archivo], title: 'Copia de Grupos Celebración en las Casas' }).catch(() => {});
       return;
+    }
+    // En Chrome y Edge de ordenador se elige carpeta y nombre.
+    if (window.showSaveFilePicker) {
+      try {
+        const h = await window.showSaveFilePicker({ suggestedName: nombre, types: [{ description: 'Copia de seguridad', accept: { 'application/json': ['.json'] } }] });
+        const w = await h.createWritable(); await w.write(blob); await w.close();
+        alert('Copia guardada.');
+        return;
+      } catch (err) { if (err && err.name === 'AbortError') return; /* si falla, se descarga como siempre */ }
     }
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -1110,23 +1369,22 @@
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
+  $('#btnCargar').addEventListener('click', async () => {
+    if (await pedirClave('Cargar una copia sustituirá los datos actuales (antes se guarda una copia de lo que hay en la nube).')) $('#fileImport').click();
+  });
   $('#fileImport').addEventListener('change', e => {
     const f = e.target.files[0];
     if (!f) return;
     const lector = new FileReader();
-    lector.onload = () => {
-      try {
-        const s = JSON.parse(lector.result);
-        if (!Array.isArray(s.participantes) || !Array.isArray(s.rondas)) throw new Error('formato');
-        if (!confirm(`La copia tiene ${s.participantes.length} participantes y ${s.rondas.length} Celebraciones. ¿Reemplazar los datos actuales?`)) return;
-        estado = s;
-        estado.numGrupos = estado.numGrupos || 6;
-        estado.siguienteId = estado.siguienteId || estado.participantes.length + 1;
-        propuesta = null; ausentes = new Set();
-        guardar(); pintarTodo();
+    lector.onload = async () => {
+      let s;
+      try { s = JSON.parse(lector.result); if (!Array.isArray(s.participantes) || !Array.isArray(s.rondas)) throw new Error(); }
+      catch (err) { alert('Ese archivo no parece una copia válida.'); e.target.value = ''; return; }
+      if (confirm(`La copia tiene ${s.participantes.length} participantes y ${s.rondas.length} Celebraciones. ¿Reemplazar los datos actuales?`)) {
+        await aplicarDatos(s, 'Antes de cargar una copia');
         alert('Copia cargada.');
-      } catch (err) { alert('Ese archivo no parece una copia válida.'); }
-      finally { e.target.value = ''; }
+      }
+      e.target.value = '';
     };
     lector.readAsText(f);
   });
@@ -1138,9 +1396,11 @@
     } catch (e) { /* sin conexión: se recarga igualmente */ }
     location.reload();
   });
-  $('#btnBorrarTodo').addEventListener('click', () => {
-    if (!confirm('¿Seguro? Se borrará todo el historial y la lista de participantes (también en la nube y en tus otros aparatos). Descarga antes una copia si quieres conservarlo.')) return;
-    estado = estadoInicial(); propuesta = null; ausentes = new Set();
+  $('#btnBorrarTodo').addEventListener('click', async () => {
+    if (!await pedirClave('Vas a borrar todo el historial y la lista de participantes, también en la nube y en tus otros aparatos.')) return;
+    if (!confirm('¿Seguro? Se guardará antes una copia en la nube por si te arrepientes.')) return;
+    copiaNube('Antes de borrar todo');
+    estado = estadoInicial(); propuesta = null; ausentes = new Set(); recienGuardada = null; preparan.clear();
     guardar(); pintarTodo();
   });
 
@@ -1167,6 +1427,7 @@
     $('#numGrupos').value = estado.numGrupos;
     if (!$('#fecha').value) $('#fecha').value = hoy();
     pintarAsistencia();
+    pintarPrepara();
     pintarPropuesta();
     pintarMatriz();
     pintarHistorial();

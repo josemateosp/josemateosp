@@ -5,7 +5,9 @@ import {
   initializeApp, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence,
   onAuthStateChanged, signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
   initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager,
-  doc, onSnapshot, setDoc, serverTimestamp, terminate, clearIndexedDbPersistence
+  doc, onSnapshot, setDoc, serverTimestamp, terminate, clearIndexedDbPersistence,
+  collection, addDoc, getDocs, getDoc, query, orderBy, deleteDoc,
+  EmailAuthProvider, reauthenticateWithCredential, updatePassword
 } from './firebase.js';
 
 const firebaseConfig = {
@@ -29,6 +31,8 @@ try {
   db = getFirestore(app); // navegador sin almacenamiento persistente: solo en memoria
 }
 const ref = doc(db, 'datos', 'salmo');
+const copias = collection(db, 'copias');
+const MAX_COPIAS = 10;
 
 // ---------- Indicador ----------
 function estadoNube(tipo, detalle) {
@@ -61,7 +65,7 @@ function mensajeError(err) {
     // Muestra la regla correcta con el UID de quien ha entrado, lista para copiar.
     $('#textoReglas').textContent = reglasPara(auth.currentUser ? auth.currentUser.uid : 'TU_UID');
     $('#panelReglas').hidden = false;
-    return 'Sin permiso en Firestore: entra en “Copia de seguridad”';
+    return 'Sin permiso en Firestore: entra en “Ajustes y seguridad”';
   }
   if (c === 'unavailable') return 'Sin conexión con la nube';
   return 'Error con la nube (' + (c || err) + ')';
@@ -127,13 +131,56 @@ function dejarDeEscuchar() {
   puente.alGuardar = null;
 }
 
+// ---------- Copias en la nube y contraseña ----------
+// Cada copia es un documento de la colección "copias"; se conservan las MAX_COPIAS más recientes.
+const servicioNube = {
+  crearCopia(motivo) {
+    const s = puente.obtener(); // se toma ya, antes de que cambien los datos
+    const json = JSON.stringify(s);
+    return addDoc(copias, {
+      json, motivo, creada: Date.now(), fecha: serverTimestamp(),
+      resumen: `${s.rondas.length} ${s.rondas.length === 1 ? 'Celebración' : 'Celebraciones'} · ${s.participantes.length} participantes`
+    }).then(async () => {
+      const todas = await getDocs(query(copias, orderBy('creada', 'desc')));
+      await Promise.all(todas.docs.slice(MAX_COPIAS).map(d => deleteDoc(d.ref)));
+    });
+  },
+  async listarCopias() {
+    const todas = await getDocs(query(copias, orderBy('creada', 'desc')));
+    return todas.docs.slice(0, MAX_COPIAS).map(d => ({ id: d.id, creada: d.data().creada, motivo: d.data().motivo, resumen: d.data().resumen }));
+  },
+  async leerCopia(id) {
+    const d = await getDoc(doc(db, 'copias', id));
+    if (!d.exists()) throw new Error('esa copia ya no existe');
+    return JSON.parse(d.data().json);
+  },
+  async cambiarClave(actual, nueva) {
+    const user = auth.currentUser;
+    try {
+      await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, actual));
+    } catch (err) {
+      const c = err && err.code;
+      if (c === 'auth/invalid-credential' || c === 'auth/wrong-password') throw new Error('La contraseña actual no es correcta.');
+      if (c === 'auth/too-many-requests') throw new Error('Demasiados intentos. Espera unos minutos.');
+      if (c === 'auth/network-request-failed') throw new Error('No hay conexión a internet.');
+      throw new Error('No se ha podido comprobar la contraseña (' + (c || err) + ').');
+    }
+    try {
+      await updatePassword(user, nueva);
+    } catch (err) {
+      if (err && err.code === 'auth/weak-password') throw new Error('La contraseña nueva es demasiado débil (mínimo 6 caracteres).');
+      throw new Error('No se ha podido cambiar la contraseña (' + ((err && err.code) || err) + ').');
+    }
+  }
+};
+
 // ---------- Acceso ----------
 $('#accIcono').innerHTML = document.querySelector('h1 .biblia').outerHTML;
 
 function mostrarAcceso() {
   $('#acceso').hidden = false;
   $('#nubeLinea').hidden = true;
-  $('#panelCuenta').hidden = true;
+  document.body.classList.remove('con-sesion');
   setTimeout(() => $('#accEmail').focus(), 50);
 }
 function errorAcceso(err) {
@@ -149,11 +196,13 @@ function errorAcceso(err) {
 onAuthStateChanged(auth, user => {
   if (user) {
     $('#acceso').hidden = true;
-    $('#panelCuenta').hidden = false;
+    document.body.classList.add('con-sesion');
     $('#cuentaEmail').textContent = user.email;
+    puente.nube = servicioNube;
     if (!desuscribir) escuchar();
   } else {
     dejarDeEscuchar();
+    puente.nube = null;
     mostrarAcceso();
   }
 });

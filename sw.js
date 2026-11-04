@@ -1,7 +1,7 @@
 // Guarda la app en el aparato para que funcione sin internet.
 // Con conexión, pide siempre la última versión (así los cambios llegan al abrir la app);
 // sin conexión, o si la red tarda demasiado, usa la copia guardada.
-const CACHE = 'salmo-v9';
+const CACHE = 'salmo-v10';
 const ARCHIVOS = [
   './',
   'index.html',
