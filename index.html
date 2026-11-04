@@ -100,16 +100,17 @@
   .chip { display: inline-block; padding: 2px 8px; border-radius: 99px; background: var(--soft); font-size: .85rem; margin: 2px; }
   .chip.falta { background: var(--chip-falta); }
   table { border-collapse: collapse; }
-  .matriz-wrap { overflow: auto; max-height: 80vh; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
-  /* Margen alrededor de la tabla y celdas con aire para que no quede encajada. */
-  /* Bordes "separados": con bordes colapsados, las celdas asoman por detrás de los nombres fijos al desplazar. */
-  .matriz { margin: 14px 18px 18px 14px; border-collapse: separate; border-spacing: 0;
-    border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
-  .matriz th, .matriz td { border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 7px 9px; text-align: center; font-size: .85rem; min-width: 36px; height: 34px; }
-  .matriz thead th { position: sticky; top: 0; writing-mode: vertical-rl; transform: rotate(180deg); height: 170px; padding: 10px 8px; text-align: left; z-index: 2; background: var(--card); font-weight: 600; }
-  .matriz thead th.esquina { left: 0; z-index: 3; writing-mode: horizontal-tb; transform: none; }
-  .matriz tbody th { position: sticky; left: 0; background: var(--card); text-align: left; white-space: nowrap; padding: 7px 16px 7px 10px; font-weight: 600; z-index: 1; }
-  .matriz td.self { background: var(--line); }
+  .matriz-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--card); padding: 8px; }
+  /* Solo la mitad de abajo (la tabla es simétrica). Bordes "separados" para que nada asome tras los nombres fijos. */
+  .matriz { border-collapse: separate; border-spacing: 0; transform-origin: 0 0; }
+  .matriz th, .matriz td { border: 0; padding: 2px 3px; text-align: center; font-size: .76rem; min-width: 23px; height: 23px; }
+  .matriz td.dentro { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .matriz td.diag { border-top: 1px solid var(--line); }
+  .matriz thead th { position: sticky; top: 0; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; height: 138px; padding: 6px 2px;
+    text-align: left; z-index: 2; background: var(--card); font-weight: 600; border-left: 1px solid var(--line); }
+  .matriz thead th.esquina { left: 0; z-index: 3; writing-mode: horizontal-tb; transform: none; border: 0; }
+  .matriz tbody th { position: sticky; left: 0; background: var(--card); text-align: left; white-space: nowrap; padding: 2px 8px 2px 4px;
+    font-weight: 600; z-index: 1; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .historial table { width: 100%; }
   .historial td, .historial th { border-bottom: 1px solid var(--line); padding: 6px; text-align: left; vertical-align: top; }
   .part-list li { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
@@ -313,7 +314,7 @@
       <button class="tile" data-ir-a="participantes"><span class="t-ico">👥</span><span class="t-tit">Participantes</span><span class="t-sub" id="subParticipantes"></span></button>
       <button class="tile" data-ir-a="copia"><span class="t-ico">⚙️</span><span class="t-tit">Ajustes y seguridad</span><span class="t-sub">Copias, contraseña y tu cuenta</span></button>
     </div>
-    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 12 · 4/11/2026</p>
+    <p class="muted version" style="font-size:.8rem;margin-top:16px">Versión 13 · 4/11/2026</p>
   </section>
 
   <!-- NUEVA RONDA -->
@@ -365,7 +366,7 @@
       <div id="faltan" style="margin-top:10px"></div>
       <div id="estuvo" style="margin-top:12px"></div>
     </div>
-    <p class="muted">Número de veces que cada uno ha coincidido con cada otro. Los huecos vacíos son los que aún no han coincidido.</p>
+    <p class="muted">Número de veces que cada uno ha coincidido con cada otro (cada pareja sale una sola vez). Los huecos vacíos son los que aún no han coincidido.</p>
     <div class="matriz-wrap"><table class="matriz" id="tablaMatriz"></table></div>
   </section>
 
@@ -426,7 +427,7 @@
     </div>
     <div class="panel">
       <h3 style="margin-top:0">🔄 Actualizar la app</h3>
-      <p>Tienes la <strong>versión 12 · 4/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
+      <p>Tienes la <strong>versión 13 · 4/11/2026</strong>. Si te han dicho que hay una versión nueva y no la ves, pulsa aquí (hace falta internet).</p>
       <button class="btn" id="btnActualizar">🔄 Buscar actualización</button>
     </div>
     <div class="panel">
@@ -925,16 +926,19 @@
       const t = maxV > 1 ? (v - 1) / (maxV - 1) : 0;
       return `hsl(${140 - 130 * t}, 55%, ${82 - 22 * t}%)`;
     };
+    // La tabla es simétrica: solo se muestra la mitad de abajo (cada pareja una vez), en escalera.
+    const filas = ps.slice(1), columnas = ps.slice(0, -1);
     let html = '<thead><tr><th class="esquina"></th>' +
-      ps.map(p => `<th>${esc(p.nombre)}</th>`).join('') + '</tr></thead><tbody>';
-    ps.forEach(a => {
-      html += `<tr><th>${esc(a.nombre)}</th>` + ps.map(b => {
-        if (a.id === b.id) return '<td class="self"></td>';
+      columnas.map(p => `<th>${esc(p.nombre)}</th>`).join('') + '</tr></thead><tbody>';
+    filas.forEach((a, i) => {
+      html += `<tr><th>${esc(a.nombre)}</th>` + columnas.map((b, j) => {
+        if (j > i) return '<td></td>';
         const v = veces[clave(a.id, b.id)] || 0;
-        return `<td style="background:${color(v)};${v ? 'color:#22201c' : ''}">${v || ''}</td>`;
+        return `<td class="dentro${j === i ? ' diag' : ''}" style="background:${color(v)};${v ? 'color:#22201c' : ''}" title="${esc(a.nombre)} – ${esc(b.nombre)}">${v || ''}</td>`;
       }).join('') + '</tr>';
     });
     $('#tablaMatriz').innerHTML = html + '</tbody>';
+    requestAnimationFrame(ajustarMatriz);
 
     const sel = $('#selPersona');
     const prev = sel.value;
@@ -942,6 +946,15 @@
     if (ps.some(p => p.id === prev)) sel.value = prev;
     pintarFaltan();
   }
+  // Reduce la tabla para que quepa a lo ancho de un vistazo (sin bajar de un tamaño legible).
+  function ajustarMatriz() {
+    const t = $('#tablaMatriz'), wrap = t.parentElement;
+    if (!wrap.offsetWidth) return;
+    t.style.zoom = 1;
+    const z = Math.min(1, (wrap.clientWidth - 16) / t.offsetWidth);
+    t.style.zoom = Math.max(z, 0.62);
+  }
+  window.addEventListener('resize', ajustarMatriz);
   function pintarFaltan() {
     const id = $('#selPersona').value;
     if (!id) { $('#faltan').innerHTML = ''; return; }
